@@ -1,0 +1,191 @@
+.Clocks {
+  height: 100vh;
+  position: relative;
+}
+
+section {
+  height: calc(100% / 3);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid black;
+}
+
+section>p {
+  width: 100%;
+}
+
+section p {
+  margin: 0;
+}
+
+p.description {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+p.timer {
+  font-size: 9rem;
+  font-weight: 400;
+}
+
+.obs-clock {
+  position: relative;
+}
+
+.streaming-container,
+.block-container {
+  width: 50%;
+  height: 100%;
+  border-right: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.streaming-container p.playing-stream {
+  color: red;
+}
+
+.only-stream {
+  width: 100% !important;
+  border-right: none;
+}
+
+.clockIcon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.7rem;
+}
+
+.clockIcon img {
+  width: 3rem;
+  cursor: pointer;
+}
+
+.block-container.false-block {
+  display: none
+}
+
+.block-container .block-buttons {
+  width: 7%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.block-container .block-buttons button {
+  margin-top: 0.6rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.1rem 0;
+}
+
+.block-container .block-buttons button img {
+  width: 1rem;
+  /* margin-right: 1rem; */
+}
+
+.block-container.true-block {
+  display: block
+}
+
+.block-info {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.block-info .block-clock {
+  width: 92%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.settings {
+  padding: 2rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+
+.media-clock {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.settings .settings-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.settings .settings-block .form-label {
+  font-size: 1.2rem;
+}
+
+.settings .settings-block .form-label span {
+  color: red;
+  font-weight: bold;
+}
+
+.settings .settings-block.all-invalid-true {
+  margin-bottom: 1.3rem;
+}
+
+.settings .settings-block .all-invalid-true {
+  margin-bottom: 1.3rem;
+}
+
+
+
+.loader.large {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader.large img {
+  width: 6rem;
+}
+
+.error-block {
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-block img {
+  width: 7rem;
+}
+
+.error-block .error-title {
+  font-size: 2.5rem;
+  margin: 2rem 0;
+  color: red;
+}
+
+.error-block .error-description {
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+@media screen and (min-width: 1000px) {
+  /* .clockIcon {
+    padding: 0.7rem;
+  }
+
+  .clockIcon img {
+    width: 3rem;
+  } */
+}

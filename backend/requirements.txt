@@ -1,0 +1,7 @@
+flask-socketio 
+flask-cors
+obs-websocket-py
+
+
+Remove this line and below before installing 
+command: pip3 install -r requirements.txt
