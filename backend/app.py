@@ -97,10 +97,10 @@ def change():
 
 
 
-# @socketio.on('record info')
-# def handle_record_event(data):
-    # time = client.call(obswebsocket.requests.GetRecordingStatus()).getRecordTimecode()
-    # socketio.emit('my response', json.dumps({ 'type': 'return', 'time': time }) )
+@socketio.on('record info')
+def handle_record_event(data):
+    time = client.call(obswebsocket.requests.GetRecordingStatus()).getRecordTimecode()
+    socketio.emit('my response', json.dumps({ 'type': 'return', 'time': time }) )
     # socketio.emit('my response', json.dumps({'type': 'connect', 'stream': streaming, 'recording': recording, 'streamTime': streamTime, 'recordTime': recordTime}) )
 
 @socketio.on('media info')

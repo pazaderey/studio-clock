@@ -21,6 +21,10 @@ Backend:
 cd ./backend
 flask run
 ```
+or
+```bash
+python -m flask run
+```
 
 Frontend:
 ```bash

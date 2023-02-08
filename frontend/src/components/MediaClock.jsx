@@ -32,13 +32,13 @@ export const MediaClock = () => {
               setStart(true)
               break;
            
-	   case 'connect':
-              data.time > 100 && setTime(data.duration - data.time)
-              data.state === 'playing' && setStart(true)
-              break;
+            case 'connect':
+                data.time > 100 && setTime(data.duration - data.time)
+                data.state === 'playing' && setStart(true)
+                break;
 
-           default:
-               break;
+            default:
+                break;
         }
       })
     return () =>  socket.off('media response')

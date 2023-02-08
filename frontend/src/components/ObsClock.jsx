@@ -80,6 +80,7 @@ export const ObsClock = () => {
 
                 case 'error':
                     dispatch({type: types.ShowError, payload: data.mes})
+                    break;
 
                 default:
                     break;
@@ -123,7 +124,7 @@ export const ObsClock = () => {
         }, 1000))
     }, [setTimer, setTime, time])
 
-    //  useEffect(() => {console.log('tick')}, [tick])
+    useEffect(() => {console.log('tick')}, [tick])
 
     return (
         <section className="obs-clock">

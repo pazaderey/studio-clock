@@ -3,34 +3,34 @@ import { useDispatch } from 'react-redux';
 import { io } from 'socket.io-client';
 import { types } from '../redux/types';
 
-const WebSocketContext = createContext(null)
+const WebSocketContext = createContext(null);
 
-export { WebSocketContext }
+export { WebSocketContext };
 
 
 export const WebSocketProvider = ({ children }) => {
     let socket;
     let valueContext;
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     if (!socket) {
-        dispatch({ type: types.ShowAppLoading })
-        socket = io.connect('/')
+        dispatch({ type: types.ShowAppLoading });
+        socket = io('/');
 
         socket.on('connect', function () {
             dispatch({
                 type: types.SetSocket,
                 payload: socket.connected
-            })
-            dispatch({ type: types.HideAppLoading })
+            });
+            dispatch({ type: types.HideAppLoading });
         });
 
         socket.on("connect_error", () => {
             dispatch({
                 type: types.SetSocket,
                 payload: socket.connected
-            })
-            dispatch({ type: types.HideAppLoading })
+            });
+            dispatch({ type: types.HideAppLoading });
         });
 
         // socket.on("connect_failed", () => {
@@ -41,17 +41,17 @@ export const WebSocketProvider = ({ children }) => {
             dispatch({
                 type: types.SetSocket,
                 payload: socket.connected
-            })
+            });
         });
 
         valueContext = {
             socket: socket
-        }
+        };
     }
 
     return (
         <WebSocketContext.Provider value={valueContext}>
             {children}
         </WebSocketContext.Provider>
-    )
+    );
 }

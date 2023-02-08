@@ -1,30 +1,36 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
 import { Settings } from './components/Settings';
 import { WebSocketProvider } from './components/WebSocket';
 import { Clocks } from './components/Clocks';
+import { ErrorBlock } from './components/ErrorBlock';
+import { useDispatch, useSelector } from 'react-redux';
+import { io } from 'socket.io-client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import { types } from "./redux/types";
 
 function App() {
-  //io.connect('http://localhost:5000')
-  // const [socket, setSocket] = useState(socketIOClient('http://localhost:5000'))
-  // const socket = useSelector(state => state.socket)
-  // const dispatch = useDispatch()
-    // const state = useSelector(state => state)
+  const [socket, setSocket] = useState(io('http://localhost:5000'));
+  const dispatch = useDispatch();
+  const state = useSelector(state => state);
 
-  // useEffect(() => {
-  //   dispatch({
-  //     type: types.SetSocket,
-  //     payload: socketIOClient('http://localhost:5000')
-  //   })
-  // }, [])
+  useEffect(() => {
+    dispatch({
+      type: types.SetSocket,
+      payload: io('http://localhost:5000')
+    })
+  }, []);
 
 
-  // if (socket) 
-  // return () => socket.disconnect()
+  if (socket) {
+    return () => socket.disconnect();
+  }
 
-  // if (!state.loading && !state.socket)
-  //   return <ErrorBlock />
+  if (!state.loading && !state.socket) {
+    return (
+      <ErrorBlock />
+    );
+  }
 
   return (
     <WebSocketProvider>
@@ -33,7 +39,7 @@ function App() {
         <Settings />
       </div>
     </WebSocketProvider>
-  )
+  );
 }
 
 export default App;
