@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { io } from 'socket.io-client';
 import { types } from '../redux/types';
 
-const WebSocketContext = createContext(io("http://localhost:4000"));
+const WebSocketContext = createContext(null);
 
 export { WebSocketContext };
 
@@ -15,7 +15,7 @@ export const WebSocketProvider = ({ children }) => {
 
     if (!socket) {
         dispatch({ type: types.ShowAppLoading });
-        socket = io('/');
+        socket = io('http://localhost:4000');
 
         socket.on('connect', function () {
             dispatch({
@@ -33,9 +33,9 @@ export const WebSocketProvider = ({ children }) => {
             dispatch({ type: types.HideAppLoading });
         });
 
-        // socket.on("connect_failed", () => {
-        //     console.log('ERROR');
-        // });
+        socket.on("connect_failed", () => {
+            console.log('ERROR');
+        });
 
         socket.on("disconnect", () => {
             dispatch({

@@ -83,7 +83,7 @@ export const ObsClock = () => {
         return () => socket.off('my response');
     }, [])
 
-    // useEffect(() => console.log(time), [time])
+    useEffect(() => console.log(time), [time])
 
     const format = useCallback(time => {
         const hours = Math.floor(time / 60 / 60);
