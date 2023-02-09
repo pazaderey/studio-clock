@@ -46,12 +46,6 @@ export const BlockClock = ({ format, socket, setBlock }) => {
     );
   }, [setTimerBlock, setTimeBlock, timeBlock]);
 
-  // const tick = () => {
-  //     setTimerBlock(setInterval(() => {
-  //         setTimeBlock(prevTime => prevTime + 1)
-  //     }, 1000))
-  // }
-
   useEffect(() => {
     if (startBlock === "start") {
       setTimeBlock(0);
@@ -67,7 +61,7 @@ export const BlockClock = ({ format, socket, setBlock }) => {
       event: event,
       info: event === "start" ? timeBlock : "",
     });
-    // dispatch({ type: types.ShowAppLoading, payload: 'blockLoading' })
+    // dispatch({ type: types.ShowAppLoading, payload: 'blockLoading' });
   };
 
   return (

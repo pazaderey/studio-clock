@@ -7,79 +7,72 @@ import { types } from '../redux/types';
 
 export const ObsClock = () => {
     const { socket } = useContext(WebSocketContext);
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
-    const [start, setStart] = useState(false)
-    const [cont, setCont] = useState(false)
-    const [block, setBlock] = useState(false)
-    const [timer, setTimer] = useState(null)
-    const [time, setTime] = useState(0)
-
-    // const SetBlockCall = useCallback(() => setBlock(flag), [setBlock])
-    // const addTime = useCallback(() => setTime(prev => prev + 1), [setTime])
+    const [start, setStart] = useState(false);
+    const [cont, setCont] = useState(false);
+    const [block, setBlock] = useState(false);
+    const [timer, setTimer] = useState(null);
+    const [time, setTime] = useState(0);
 
     const continueTime = (cont, strTime) => {
-        let sec = 0
+        let sec = 0;
         if (strTime)
-            sec = (+strTime[2].split('.')[0]) + ((+strTime[1]) * 60) + ((+strTime[0]) * 60 * 60)
-        setCont(cont)
-        setStart(cont)
-        setTime(sec)
-        return sec
+            sec = (+strTime[2].split('.')[0]) + ((+strTime[1]) * 60) + ((+strTime[0]) * 60 * 60);
+        setCont(cont);
+        setStart(cont);
+        setTime(sec);
+        return sec;
     }
-
-    //   useEffect(() => {
-    //    console.log(cont)
-    //   }, [cont])
 
     useEffect(() => {
         socket.on('my response', data => {
-            data = JSON.parse(data)
+            data = JSON.parse(data);
             switch (data.type) {
 
                 case 'connect':
                     if (data.stream) {
-                        continueTime(true, data.streamTime.split(':'))
+                        continueTime(true, data.streamTime.split(':'));
                     }
                     else if (data.recording){
-                        continueTime(!data.recordPause, data.recordTime.split(':'))
+                        continueTime(!data.recordPause, data.recordTime.split(':'));
                     }
-                    else break
+                    else break;
                     break;
 
                 case 'record':
                     if (data.event === 'start') {
-                        !data.stream && setStart(true)
+                        !data.stream && setStart(true);
                     }
                     else if (data.event === 'paused') {
-                        setStart(false)
-                        setCont(false)
+                        setStart(false);
+                        setCont(false);
                     }
                     else if (data.event === 'resume') {
-                        continueTime(true, data.time['rec-timecode'].split(':'))
+                        continueTime(true, data.time['rec-timecode'].split(':'));
                     }
                     else {
                         if (!data.stream) {
-                            setCont(false)
-                            setStart(false)
+                            setCont(false);
+                            setStart(false);
                         }
                     }
                     break;
 
                 case 'stream':
                     if (data.event === 'start') {
-                        setTime(0)
-                        setCont(false)
-                        setStart(true)
+                        setTime(0);
+                        setCont(false);
+                        setStart(true);
                     }
                     else {
-                        setCont(false)
-                        setStart(false)
+                        setCont(false);
+                        setStart(false);
                     }
                     break;
 
                 case 'error':
-                    dispatch({type: types.ShowError, payload: data.mes})
+                    dispatch({type: types.ShowError, payload: data.mes});
                     break;
 
                 default:
@@ -87,15 +80,15 @@ export const ObsClock = () => {
             }
         })
 
-        return () => socket.off('my response')
+        return () => socket.off('my response');
     }, [])
 
     // useEffect(() => console.log(time), [time])
 
     const format = useCallback(time => {
-        const hours = Math.floor(time / 60 / 60)
-        const minutes = Math.floor(time / 60)
-        const seconds = time % 60
+        const hours = Math.floor(time / 60 / 60);
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
 
         const formatted = [
             hours.toString().padStart(2, '0'),
@@ -109,22 +102,21 @@ export const ObsClock = () => {
 
     useEffect(() => {
         if (start) {
-            !cont && setTime(0)
-            tick(setTimer, setTime)
+            !cont && setTime(0);
+            tick(setTimer, setTime);
         }
-        !start && clearInterval(timer)
-    }, [start])
+        !start && clearInterval(timer);
+    }, [start]);
 
 
 
     const tick = useCallback((setTimerCall, setTimeCall) => {
         setTimerCall(setInterval(() => {
-            //addTime()
-            setTimeCall(prevTime => prevTime + 1)
-        }, 1000))
-    }, [setTimer, setTime, time])
+            setTimeCall(prevTime => prevTime + 1);
+        }, 1000));
+    }, [setTimer, setTime, time]);
 
-    useEffect(() => {console.log('tick')}, [tick])
+    useEffect(() => {console.log('tick')}, [tick]);
 
     return (
         <section className="obs-clock">
@@ -139,5 +131,5 @@ export const ObsClock = () => {
                 <BlockClock format={format} socket={socket} setBlock={setBlock} />
             </div>
         </section>
-    )
-}
+    );
+};

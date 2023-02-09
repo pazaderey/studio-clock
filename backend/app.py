@@ -11,37 +11,46 @@ block = 'stop'
 
 def startRecord(mes):
     global stream
+    print("Recording started")
     socketio.emit('my response', json.dumps({'type': 'record', 'event': 'start', 'stream': stream}) )
 
 def stopRecord(mes):
     global stream
+    print("Recording stopped")
     socketio.emit('my response', json.dumps({'type': 'record', 'event': 'stop', 'stream': stream}) )
 
 def pausedRecord(mes):
     global stream
+    print("Recording paused")
     socketio.emit('my response', json.dumps({ 'type': 'record', 'event': 'paused', 'stream': stream }) )
 
 def resumedRecord(mes):
     global stream
+    print("Recording resumed")
     socketio.emit('my response', json.dumps({ 'type': 'record', 'event': 'resume', 'stream': stream, 'time': mes.datain}) )
 
 def startStream(mes):
     global stream
+    print("Stream started")
     stream = True
     socketio.emit('my response', json.dumps({'type': 'stream', 'event': 'start', 'stream': stream}) )
 
 def stopStream(mes):
     global stream
+    print("Stream stopped")
     stream = False
     socketio.emit('my response', json.dumps({'type': 'stream', 'event': 'stop', 'stream': stream}) )
 
 def startMedia(mes):
+    print("Media started")
     socketio.emit('media response', json.dumps({ 'type': 'media', 'event': 'start', 'sourceName': mes.getSourceName() }) )
 
 def stopMedia(mes):
+    print("Media stopped")
     socketio.emit('media response', json.dumps({ 'type': 'media', 'event': 'stop' }) )
 
 def pausedMedia(mes):
+    print("Media paused")
     socketio.emit('media response', json.dumps({ 'type': 'media', 'event': 'paused' }) )
 
 app = Flask(__name__)

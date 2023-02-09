@@ -10,14 +10,14 @@ import './App.css';
 import { types } from "./redux/types";
 
 function App() {
-  const [socket, setSocket] = useState(io('http://localhost:5000'));
+/*   const [socket, setSocket] = useState(io('http://localhost:4000'));
   const dispatch = useDispatch();
   const state = useSelector(state => state);
 
   useEffect(() => {
     dispatch({
       type: types.SetSocket,
-      payload: io('http://localhost:5000')
+      payload: io('http://localhost:4000')
     })
   }, []);
 
@@ -30,7 +30,7 @@ function App() {
     return (
       <ErrorBlock />
     );
-  }
+  } */
 
   return (
     <WebSocketProvider>

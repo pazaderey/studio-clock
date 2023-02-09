@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { io } from 'socket.io-client';
 import { types } from '../redux/types';
 
-const WebSocketContext = createContext(null);
+const WebSocketContext = createContext(io("http://localhost:4000"));
 
 export { WebSocketContext };
 
