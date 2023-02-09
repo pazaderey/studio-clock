@@ -1,9 +1,12 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useContext } from "react";
+import { WebSocketContext } from "./WebSocket";
 import pause from "../img/pause.png";
 import play from "../img/play.png";
 import restart from "../img/restart.png";
 
-export const BlockClock = ({ format, socket, setBlock }) => {
+export const BlockClock = ({ format, setBlock }) => {
+  const { socket } = useContext(WebSocketContext);
+
   const [startBlock, setStartBlock] = useState("stop");
   const [timeBlock, setTimeBlock] = useState(0);
   const [timerBlock, setTimerBlock] = useState(null);
@@ -56,12 +59,11 @@ export const BlockClock = ({ format, socket, setBlock }) => {
     startBlock === "stop" && clearInterval(timerBlock);
   }, [startBlock]);
 
-  const clickTimer = (event) => {
-    socket.emit("block event", {
-      event: event,
+  function clickTimer(event) {
+    socket.emit("block event", JSON.stringify({
+      event,
       info: event === "start" ? timeBlock : "",
-    });
-    // dispatch({ type: types.ShowAppLoading, payload: 'blockLoading' });
+    }));
   };
 
   return (
@@ -79,10 +81,7 @@ export const BlockClock = ({ format, socket, setBlock }) => {
           {" "}
           <img src={pause} alt="pause" />{" "}
         </button>
-        <button
-          className="btn btn-secondary"
-          onClick={() => clickTimer("restart")}
-        >
+        <button className="btn btn-secondary" onClick={() => clickTimer("restart")}>
           {" "}
           <img src={restart} alt="restart" />
         </button>

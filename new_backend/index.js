@@ -5,11 +5,12 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
 
-function initOBS(ip, port, password) {
+async function initOBS(ip, port, password) {
   try {
-    obs.connect(`ws://${ip}:${port}`, password);
-    console.log("Connected to OBS");
-    regEvents();
+    obs.connect(`ws://${ip}:${port}`, password).then(() => {
+      console.log("Connected to OBS");
+      regEvents();
+    });
   } catch (e) {
     console.error(e);
     io.emit("my response", JSON.stringify({ type: "error", mes: 'error OBS connection' }));
@@ -21,12 +22,10 @@ function regEvents() {
     switch (args.outputState) {
       case "OBS_WEBSOCKET_OUTPUT_STARTED":
         stream = true;
-        console.log("Stream started");
         io.emit("my response", JSON.stringify({ type: 'stream', event: 'start', stream }));
         break;
       case "OBS_WEBSOCKET_OUTPUT_STOPPED":
         stream = false;
-        console.log("Stream stopped");
         io.emit("my response", JSON.stringify({ type: 'stream', event: 'stop', stream }));
         break;
     }
@@ -35,26 +34,21 @@ function regEvents() {
   obs.on("RecordStateChanged", (args) => {
     switch (args.outputState) {
       case "OBS_WEBSOCKET_OUTPUT_STARTED":
-        console.log("Recording started");
         io.emit("my response", JSON.stringify({ type: 'record', event: 'start', stream }));
         break;
       case "OBS_WEBSOCKET_OUTPUT_STOPPED":
-        console.log("Recording stopped");
         io.emit("my response", JSON.stringify({ type: 'record', event: 'stop', stream }));
         break;
       case "OBS_WEBSOCKET_OUTPUT_PAUSED":
-        console.log("Recording paused");
         io.emit("my response", JSON.stringify({ type: 'record', event: 'paused', stream }));
     }
   });
 
   obs.on("MediaInputPlaybackStarted", (args) => {
-    console.log("Media started");
     io.emit("media response", JSON.stringify({ type: "media", event: "start", sourceName: args.inputName }));
   });
 
   obs.on("MediaInputPlaybackEnded", (args) => {
-    console.log("Media stopped");
     io.emit("media response", JSON.stringify({ type: "media", event: "stop" }));
   });
 
@@ -62,7 +56,6 @@ function regEvents() {
     stream = false;
     switch (args.mediaAction) {
       case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE":
-        console.log("Media paused");
         io.emit("media response", JSON.stringify({ type: "media", event: "paused" }));
         break;
     }
@@ -84,6 +77,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", async () => {
+  console.log("Connected to front");
   let streamTime = "";
   let recordTime = "";
   try {
@@ -113,17 +107,18 @@ io.on("connection", async () => {
   }
 });
 
-io.on("record info", async () => {
+io.addListener("record info", async () => {
   const recordStatus = await obs.call("GetRecordStatus");
   io.emit("my response", JSON.stringify({ type: "return", time: recordStatus.outputTimecode }));
 });
 
-io.on("media info", async (data) => {
+io.addListener("media info", async (data) => {
   const mediaStatus = await obs.call("GetMediaInputStatus", { inputName: data.sourceName });
   io.emit("media response", JSON.stringify({ type: 'media', event: 'duration', duration: mediaStatus.mediaDuration, time: mediaStatus.mediaCursor }));
 });
 
-io.on("block event", (data) => {
+io.addListener("block event", (data) => {
+  console.log("Got block");
   block = data.event;
   io.emit("block response", JSON.stringify({ event: data.event, info: data.info }));
 });
@@ -138,9 +133,9 @@ app.post("/reconnect", (req, res) => {
       obs.disconnect();
     }
     initOBS(ip, port, password);
-    return JSON.stringify({ status: "ok" });
+    return res.send(JSON.stringify({ status: "ok" }));
   }
-  return JSON.stringify({ status: "error", description: "Failed to connect to OBS. Wait some time, or check the correctness of your records" });
+  return res.send(JSON.stringify({ status: "error", description: "Failed to connect to OBS. Wait some time, or check the correctness of your records" }));
 });
 
 server.listen(port, () => console.log(`App started on port ${port}`));
