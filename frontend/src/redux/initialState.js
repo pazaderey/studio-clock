@@ -1,7 +1,7 @@
 export const initialState = {
-    loading: false,
-    socket: false,
-    error: false,
-    errorText: ''
-    // blockLoading: false,
+  loading: false,
+  socket: false,
+  error: false,
+  errorText: ''
+  // blockLoading: false,
 }
