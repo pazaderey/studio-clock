@@ -8,9 +8,9 @@ export const MainClock = () => {
       setTime(new Date().toLocaleTimeString());
     }, 1000);
     return () => {
-      clearInterval(timer); // Return a function to clear the timer so that it will stop being called on unmount
+      clearInterval(timer);
     };
-  }, []);
+  });
 
   return (
     <section className="main-clock">

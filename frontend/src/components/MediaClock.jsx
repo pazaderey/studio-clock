@@ -1,84 +1,80 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { WebSocketContext } from './WebSocket';
-
+import React, { useContext, useEffect, useState } from "react";
+import { WebSocketContext } from "./WebSocket";
 
 export const MediaClock = () => {
-    const { socket } = useContext(WebSocketContext);
+  const { socket } = useContext(WebSocketContext);
 
-    const [time, setTime] = useState(0);
-    const [start, setStart] = useState(false)
-    const [timer, setTimer] = useState(null)
+  const [time, setTime] = useState(0);
+  const [start, setStart] = useState(false);
+  const [timer, setTimer] = useState(null);
 
+  useEffect(() => {
+    socket.on("media response", (data) => {
+      switch (data.event) {
+        case "start":
+          socket.emit("media info", { sourceName: data.sourceName });
+          break;
 
-    useEffect(() => {
-       socket.on('media response', data => {
-          data = JSON.parse(data)
-          switch (data.event) {
+        case "stop":
+          setStart(false);
+          setTime(0);
+          break;
 
-           case 'start':
-              socket.emit('media info', {'sourceName': data.sourceName})
-              break;
+        case "paused":
+          setStart(false);
+          break;
 
-           case 'stop':
-              setStart(false) && setTime(0)
-              break;
+        case "duration":
+          setTime(data.duration - data.time);
+          setStart(true);
+          break;
 
-           case 'paused':
-              setStart(false)
-              break;
+        case "connect":
+          data.time > 100 && setTime(data.duration - data.time);
+          data.state === "playing" && setStart(true);
+          break;
 
-           case 'duration':
-              data.time <= 1000 && setTime(data.duration)
-              setStart(true)
-              break;
-           
-            case 'connect':
-                data.time > 100 && setTime(data.duration - data.time)
-                data.state === 'playing' && setStart(true)
-                break;
+        default:
+          break;
+      }
+    });
+    return () => socket.off("media response");
+  }, []);
 
-            default:
-                break;
-        }
-      })
-    return () =>  socket.off('media response')
-    }, [])
+  useEffect(() => {
+    start ? tick() : clearInterval(timer);
+  }, [start]);
 
+  useEffect(() => {
+    time < 1000 && setStart(false);
+  }, [time]);
 
-    useEffect(() => {
-        start ? tick() : clearInterval(timer)
-    }, [start])
+  const tick = () => {
+    setTimer(
+      setInterval(() => {
+        setTime((prevTime) => prevTime - 1000);
+      }, 1000)
+    );
+  };
 
+  const format = (time) => {
+    const seconds = Math.floor(time / 1000) % 60;
+    const minutes = Math.floor(time / 1000 / 60) % 60;
+    const hours = Math.floor(time / 1000 / 60 / 60);
 
-    useEffect(() => {
-        (time < 1000) && setStart(false)
-    }, [time])
+    const formatted = [
+      hours.toString().padStart(2, "0"),
+      minutes.toString().padStart(2, "0"),
+      seconds.toString().padStart(2, "0"),
+    ].join(":");
 
-    const tick = () => {
-        setTimer(setInterval(() => {
-            setTime(prevTime => prevTime - 1000)
-        }, 1000))
-    }
+    return formatted;
+  };
 
-    const format = time => {
-
-        const minutes = time / 1000 / 60
-        const seconds = Math.floor((minutes % 1) * 60)
-        const hours = Math.floor(time / 1000 / 60 / 60);
-
-        const formatted = [
-            hours.toString().padStart(2, '0'),
-            Math.floor(minutes).toString().padStart(2, '0'),
-            seconds.toString().padStart(2, '0')
-        ].join(':');
-
-        return formatted;
-    };
-
-    return (
-        <section className="media-clock">
-            <p className="description">До конца ролика:</p>
-            <p className="timer">{format(time)}</p>
-        </section>
-    )
-}
+  return (
+    <section className="media-clock">
+      <p className="description">До конца ролика:</p>
+      <p className="timer">{format(time)}</p>
+    </section>
+  );
+};

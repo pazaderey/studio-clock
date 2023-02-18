@@ -38,7 +38,6 @@ export const ObsClock = () => {
 
   useEffect(() => {
     socket.on("my response", (data) => {
-      data = JSON.parse(data);
       switch (data.type) {
         case "connect":
           if (data.stream) {
@@ -92,7 +91,7 @@ export const ObsClock = () => {
   const format = useCallback(
     (time) => {
       const hours = Math.floor(time / 60 / 60);
-      const minutes = Math.floor(time / 60);
+      const minutes = Math.floor(time / 60) % 60;
       const seconds = time % 60;
 
       const formatted = [

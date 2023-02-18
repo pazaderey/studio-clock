@@ -12,8 +12,7 @@ export const BlockClock = ({ format, setBlock }) => {
   const [timerBlock, setTimerBlock] = useState(null);
 
   useEffect(() => {
-    socket.on("block response", (data) => {
-      data = JSON.parse(data);
+    socket.on("block_response", (data) => {
       switch (data.event) {
         case "start":
           if (data.info) {
@@ -60,10 +59,10 @@ export const BlockClock = ({ format, setBlock }) => {
   }, [startBlock]);
 
   function clickTimer(event) {
-    socket.emit("block event", JSON.stringify({
+    socket.emit("block_event", {
       event,
       info: event === "start" ? timeBlock : "",
-    }));
+    });
   };
 
   return (
