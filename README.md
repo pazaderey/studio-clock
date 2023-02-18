@@ -4,8 +4,8 @@
 
 Backend:
 ```bash
-cd ./backend
-pip3 install -r requirements.txt
+cd ./new_backend
+npm i
 ```
 
 Frontend:
@@ -18,12 +18,8 @@ npm i
 
 Backend:
 ```bash
-cd ./backend
-flask run
-```
-or
-```bash
-python -m flask run
+cd ./new_backend
+npm start
 ```
 
 Frontend:
