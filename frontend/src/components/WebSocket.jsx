@@ -2,6 +2,10 @@ import React, { createContext } from "react";
 import { useDispatch } from "react-redux";
 import { io } from "socket.io-client";
 import { types } from "../redux/types";
+/* import dotenv from "dotenv"
+
+dotenv.config({ path: "../.env" });
+const env = process.env; */
 
 const WebSocketContext = createContext(null);
 
@@ -14,7 +18,9 @@ export const WebSocketProvider = ({ children }) => {
 
   if (!socket) {
     dispatch({ type: types.ShowAppLoading });
-    socket = io("http://localhost:4000");
+    const BACKEND_URL = "http://localhost";
+    const BACK_PORT = 4000;
+    socket = io(`${BACKEND_URL}:${BACK_PORT}`);
 
     socket.on("connect", function () {
       dispatch({

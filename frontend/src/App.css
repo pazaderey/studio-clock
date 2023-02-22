@@ -1,6 +1,7 @@
 .Clocks {
   height: 100vh;
   position: relative;
+  box-sizing: border-box;
 }
 
 section {
@@ -11,7 +12,7 @@ section {
   border-bottom: 2px solid black;
 }
 
-section>p {
+div > p {
   width: 100%;
 }
 
@@ -29,6 +30,15 @@ p.timer {
   font-weight: 400;
 }
 
+.main-clock {
+  width: 50%;
+  height: 100%;
+  border-right: 2px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .obs-clock {
   position: relative;
 }
@@ -37,7 +47,7 @@ p.timer {
 .block-container {
   width: 50%;
   height: 100%;
-  border-right: 2px solid black;
+  border-right: 2px solid #000;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -47,35 +57,14 @@ p.timer {
   color: red;
 }
 
-.only-stream {
-  width: 100% !important;
-  border-right: none;
-}
-
-.clockIcon {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 0.7rem;
-}
-
-.clockIcon img {
-  width: 3rem;
-  cursor: pointer;
-}
-
-.block-container.false-block {
-  display: none
-}
-
-.block-container .block-buttons {
+.block-buttons {
   width: 7%;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.block-container .block-buttons button {
+.block-buttons button {
   margin-top: 0.6rem;
   display: flex;
   justify-content: center;
@@ -83,26 +72,21 @@ p.timer {
   padding: 0.1rem 0;
 }
 
-.block-container .block-buttons button img {
+.block-buttons button img {
   width: 1rem;
-  /* margin-right: 1rem; */
-}
-
-.block-container.true-block {
-  display: block
 }
 
 .block-info {
+  width: 50%;
   display: flex;
   flex-direction: row;
-  height: 100%;
 }
 
-.block-info .block-clock {
-  width: 92%;
+.block-clock {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex-grow: 1;
 }
 
 .settings {
@@ -113,6 +97,7 @@ p.timer {
 }
 
 .media-clock {
+  width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -139,8 +124,6 @@ p.timer {
 .settings .settings-block .all-invalid-true {
   margin-bottom: 1.3rem;
 }
-
-
 
 .loader.large {
   position: absolute;
@@ -188,4 +171,25 @@ p.timer {
   .clockIcon img {
     width: 3rem;
   } */
+}
+
+.progress-bar-container {
+  height: 10;
+  width: 100%;
+  background: lightgrey;
+  border-radius: 50;
+  margin: 50;
+}
+
+.progress-bar-filler {
+  height: 100%;
+  background-color: red;
+  border-radius: inherit;
+  text-align: right;
+}
+
+.progress-bar-label {
+  padding: 5;
+  color: #fff;
+  font-weight: bold;
 }

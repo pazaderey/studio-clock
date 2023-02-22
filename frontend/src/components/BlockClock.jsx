@@ -4,7 +4,7 @@ import pause from "../img/pause.png";
 import play from "../img/play.png";
 import restart from "../img/restart.png";
 
-export const BlockClock = ({ format, setBlock }) => {
+export const BlockClock = ({ format }) => {
   const { socket } = useContext(WebSocketContext);
 
   const [startBlock, setStartBlock] = useState("stop");
@@ -20,7 +20,6 @@ export const BlockClock = ({ format, setBlock }) => {
             setStartBlock("return");
           } else {
             setStartBlock("start");
-            setBlock(true);
           }
           break;
 

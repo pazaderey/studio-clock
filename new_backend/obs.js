@@ -3,14 +3,36 @@ import OBSWebSocket from "obs-websocket-js";
 export class OBSService {
   constructor(config) {
     this.config = config;
-    this.obs = new OBSWebSocket();
+    this.obs = false;
     this.stream = false;
     this.block = "stop";
   }
 
   async init(config = this.config) {
-    await this.obs.connect(`ws://${config.ip}:${config.port}`, config.password);
-    console.log("Connected to OBS");
+    try {
+      this.obs = new OBSWebSocket();
+      await this.obs.connect(`ws://${config.ip}:${config.port}`, config.password);
+      console.log("Connected to OBS");
+    } catch(e) {
+      this.obs = false;
+      console.log("Connection to OBS failed");
+    }
+  }
+
+  async getRecordStatus() {
+    return this.obs.call("GetRecordStatus");
+  }
+
+  async getMediaInputStatus(inputName) {
+    return this.obs.call("GetMediaInputStatus", { inputName });
+  }
+
+  async getStreamStatus() {
+    return this.obs.call("GetStreamStatus");
+  }
+
+  async getInputList() {
+    return this.obs.call("GetInputList");
   }
 
   registerEvents(io) {
