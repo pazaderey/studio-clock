@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from "react";
+import { useFormat } from "../hooks/customHooks";
 import { WebSocketContext } from "./WebSocket";
 import { useDispatch } from "react-redux";
 import { types } from "../redux/types";
@@ -83,22 +84,7 @@ export const ObsClock = () => {
     return () => socket.off("my response");
   }, []);
 
-  const format = useCallback(
-    (time) => {
-      const hours = Math.floor(time / 60 / 60);
-      const minutes = Math.floor(time / 60) % 60;
-      const seconds = time % 60;
-
-      const formatted = [
-        hours.toString().padStart(2, "0"),
-        minutes.toString().padStart(2, "0"),
-        seconds.toString().padStart(2, "0"),
-      ].join(":");
-
-      return formatted;
-    },
-    [time]
-  );
+  const format = useFormat(time);
 
   useEffect(() => {
     if (start) {

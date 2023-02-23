@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { WebSocketContext } from "./WebSocket";
 import ProgressBar from "./ProgressBar";
+import { useFormat } from "../hooks/customHooks";
 
 export const MediaClock = () => {
   const { socket } = useContext(WebSocketContext);
@@ -62,25 +63,12 @@ export const MediaClock = () => {
     );
   };
 
-  const format = (time) => {
-    const seconds = Math.floor(time / 1000) % 60;
-    const minutes = Math.floor(time / 1000 / 60) % 60;
-    const hours = Math.floor(time / 1000 / 60 / 60);
-
-    const formatted = [
-      hours.toString().padStart(2, "0"),
-      minutes.toString().padStart(2, "0"),
-      seconds.toString().padStart(2, "0"),
-    ].join(":");
-
-    return formatted;
-  };
+  const format = useFormat();
 
   return (
     <div className="media-clock">
       <p className="description">До конца ролика:</p>
-      {/*       <ProgressBar completed={Math.round((1 - time / duration) * 100)}/>
-       */}{" "}
+      <ProgressBar completed={Math.round((1 - time / duration) * 100)}/>
       <p className="timer">{format(time)}</p>
     </div>
   );

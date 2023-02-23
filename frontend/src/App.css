@@ -58,10 +58,11 @@ p.timer {
 }
 
 .block-buttons {
-  width: 7%;
+  width: 10%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin-right: 0.5%;
 }
 
 .block-buttons button {
@@ -70,10 +71,11 @@ p.timer {
   justify-content: center;
   align-items: center;
   padding: 0.1rem 0;
+  height: 3rem;
 }
 
 .block-buttons button img {
-  width: 1rem;
+  width: 2rem;
 }
 
 .block-info {
@@ -163,18 +165,20 @@ p.timer {
   text-align: center;
 }
 
-@media screen and (min-width: 1000px) {
-  /* .clockIcon {
-    padding: 0.7rem;
+@media screen and (max-width: 1150px) {
+  p.description {
+    font-size: 2.5rem;
+    font-weight: bold;
   }
-
-  .clockIcon img {
-    width: 3rem;
-  } */
+  
+  p.timer {
+    font-size: 8.5rem;
+    font-weight: 400;
+  }
 }
 
 .progress-bar-container {
-  height: 10;
+  height: 20px;
   width: 100%;
   background: lightgrey;
   border-radius: 50;
@@ -185,11 +189,5 @@ p.timer {
   height: 100%;
   background-color: red;
   border-radius: inherit;
-  text-align: right;
 }
 
-.progress-bar-label {
-  padding: 5;
-  color: #fff;
-  font-weight: bold;
-}

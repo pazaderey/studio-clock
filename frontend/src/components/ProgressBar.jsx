@@ -6,9 +6,7 @@ function ProgressBar({ completed }) {
   }
   return (
     <div className="progress-bar-container">
-      <div className="progress-bar-filler" style={fillerWidth}>
-        <span className="progress-bar-label">{"->"}</span>
-      </div>
+      <div className="progress-bar-filler" style={fillerWidth}/>
     </div>
   );
 }
