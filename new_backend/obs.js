@@ -5,7 +5,6 @@ export class OBSService {
     this.config = config;
     this.obs = false;
     this.stream = false;
-    this.block = "stop";
   }
 
   async init(config = this.config) {
@@ -17,6 +16,14 @@ export class OBSService {
       this.obs = false;
       console.log("Connection to OBS failed");
     }
+  }
+
+  async reconnect(config = this.config) {
+    if (this.obs) {
+      await this.obs.disconnect();
+      this.obs = false;
+    }
+    await this.init(config);
   }
 
   async getRecordStatus() {

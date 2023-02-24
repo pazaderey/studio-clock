@@ -18,11 +18,7 @@ function startServer(obsService) {
   app.use(cors());
 
   app.post("/reconnect", async (req, res) => {
-    if (obsService.obs) {
-      obsService.obs.disconnect();
-      obsService.obs = false;
-    }
-    await obsService.init(req.body);
+    await obsService.reconnect(req.body);
     if (obsService.obs) {
       obsService.registerEvents(io);
       return res.send({ status: "ok" });
@@ -38,10 +34,6 @@ function startServer(obsService) {
   });
 
   io.on("connection", async (socket) => {
-    socket.on("block_event", (data) => {
-      obsService.block = data.event;
-      socket.emit("block_response", { event: data.event, info: data.info });
-    });
 
     socket.on("record info", async () => {
       const recordStatus = await obsService.getRecordStatus();
@@ -90,7 +82,6 @@ function startServer(obsService) {
           io.emit("my response", { type: 'media', event: 'connect', state: mediaStatus.mediaState, time, duration });
         }
       }
-      io.emit("block response", { event: obsService.block });
     } else {
       io.emit("my response", { type: 'connect', error: true });
     }

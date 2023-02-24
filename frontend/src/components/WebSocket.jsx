@@ -38,10 +38,6 @@ export const WebSocketProvider = ({ children }) => {
       dispatch({ type: types.HideAppLoading });
     });
 
-    socket.on("connect_failed", () => {
-      console.log("ERROR");
-    });
-
     socket.on("disconnect", () => {
       dispatch({
         type: types.SetSocket,

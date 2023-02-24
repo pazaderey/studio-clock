@@ -9,9 +9,6 @@ import { ObsClock } from "./ObsClock";
 
 export const Clocks = () => {
   const state = useSelector((state) => state);
-
-
-
   if (!state.loading && (!state.socket || state.error)) return <ErrorBlock />;
 
   return (
