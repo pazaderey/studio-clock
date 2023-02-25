@@ -30,10 +30,6 @@ export function AudioState() {
     });
   }, [source]);
 
-  useEffect(() => {
-
-  }, [inputList]);
-
   function changeSource() {
     const selectedSource = document.getElementById("source-select").value;
     socket.off("audio state");
@@ -45,7 +41,7 @@ export function AudioState() {
     <div className="block-audio-state">
       <img src={state} alt="Audio Input State"/>
       <select id="source-select" onChange={changeSource}>
-        <option value="">OBS Audio source</option>
+        <option value="" disabled>OBS Audio source</option>
         {inputList.map((i, ind) => <option value={i} key={ind+1}>{i}</option>)}
       </select>
     </div>

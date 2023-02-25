@@ -17,20 +17,21 @@ function startServer(obsService) {
   app.use(express.json());
   app.use(cors());
 
-  app.post("/reconnect", async (req, res) => {
-    await obsService.reconnect(req.body);
-    if (obsService.obs) {
-      obsService.registerEvents(io);
-      return res.send({ status: "ok" });
-    }
-    return res.send({ status: "error", description: "Failed to connect to OBS. Wait some time, or check the correctness of your records" });
-  });
-
   const server = createServer(app);
   const FRONT_URL = env.FRONTEND_URL || "http://localhost";
   const FRONT_PORT = env.FRONTEND_PORT || 3000;
   const io = new Server(server, {
     cors: `${FRONT_URL}:${FRONT_PORT}`
+  });
+
+  app.post("/reconnect", async (req, res) => {
+    await obsService.reconnect(req.body);
+    if (obsService.obs) {
+      obsService.registerEvents(io);
+      io.emit("my response", { type: "connect" });
+      return res.send({ status: "ok" });
+    }
+    return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
   });
 
   io.on("connection", async (socket) => {
@@ -90,7 +91,6 @@ function startServer(obsService) {
           const duration = mediaStatus.mediaDuration;
           const time = mediaStatus.mediaCursor;
           io.emit("my response", { type: 'media', event: 'connect', state: mediaStatus.mediaState, time, duration });
-          io.emit("input list", { inputs });
         }
       }
     } else {
