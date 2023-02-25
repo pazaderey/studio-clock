@@ -1,6 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { AudioState } from "./AudioState";
 import { BlockClock } from "./BlockClock";
+import { DirectorHints } from "./DirectorHints";
 import { ErrorBlock } from "./ErrorBlock";
 import { Loading } from "./Loading";
 import { MainClock } from "./MainClock";
@@ -21,8 +23,9 @@ export const Clocks = () => {
             <MainClock />
             <BlockClock />
           </section>
-          <section>
-
+          <section className="director-hints">
+            <DirectorHints/>
+            <AudioState/>
           </section>
           <section>
             <ObsClock />

@@ -191,3 +191,30 @@ p.timer {
   border-radius: inherit;
 }
 
+section.director-hints {
+  align-items: start;
+}
+
+.block-director-hint {
+  width: calc(100% - 150px);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 2px solid black;
+}
+
+.block-audio-state {
+  margin-right: 0.3%;
+  width: 150px;
+}
+
+.block-audio-state > select {
+  width: 150px;
+}
+
+.block-audio-state > img {
+  width: 150px;
+  height: 150px;
+}
+

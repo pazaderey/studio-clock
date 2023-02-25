@@ -30,6 +30,14 @@ export const WebSocketProvider = ({ children }) => {
       dispatch({ type: types.HideAppLoading });
     });
 
+    socket.on("obs_failed", () => {
+      dispatch({
+        type: types.ShowError,
+        payload: socket.connected,
+      });
+      dispatch({ type: types.HideAppLoading });
+    })
+
     socket.on("connect_error", () => {
       dispatch({
         type: types.SetSocket,

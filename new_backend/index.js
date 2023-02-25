@@ -50,6 +50,16 @@ function startServer(obsService) {
       });
     });
 
+    socket.on("input list", async () => {
+      const { inputs } = await obsService.getInputList();
+      socket.emit("input list", { inputs });
+    });
+
+    socket.on('check input', async (data) => {
+      const { inputMuted } = await obsService.getInputMute(data);
+      socket.emit("audio state", { input: data, state: !inputMuted });
+    });
+
     console.log("Connected to front");
     let streamTime = "";
     let recordTime = "";
@@ -80,10 +90,11 @@ function startServer(obsService) {
           const duration = mediaStatus.mediaDuration;
           const time = mediaStatus.mediaCursor;
           io.emit("my response", { type: 'media', event: 'connect', state: mediaStatus.mediaState, time, duration });
+          io.emit("input list", { inputs });
         }
       }
     } else {
-      io.emit("my response", { type: 'connect', error: true });
+      io.emit("obs_failed", { type: 'connect', error: true });
     }
   });
 

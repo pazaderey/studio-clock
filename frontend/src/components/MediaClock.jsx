@@ -69,7 +69,7 @@ export const MediaClock = () => {
     <div className="media-clock">
       <p className="description">До конца ролика:</p>
       <ProgressBar completed={Math.round((1 - time / duration) * 100)}/>
-      <p className="timer">{format(time)}</p>
+      <p className="timer">{format(Math.floor(time / 1000))}</p>
     </div>
   );
 };

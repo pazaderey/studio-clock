@@ -42,6 +42,15 @@ export class OBSService {
     return this.obs.call("GetInputList");
   }
 
+  async getInputMute(inputName) {
+    try {
+      const data = await this.obs.call("GetInputMute", { inputName });
+      return data;
+    } catch(e) {
+      return { inputMuted: true };
+    }
+  }
+
   registerEvents(io) {
     this.obs.on("StreamStateChanged", (args) => {
       switch (args.outputState) {
@@ -84,6 +93,20 @@ export class OBSService {
           io.emit("media response", { type: "media", event: "paused" });
           break;
       }
+    });
+
+    this.obs.on("InputMuteStateChanged", (args) => {
+      io.emit("audio state", { input: args.inputName, state: !args.inputMuted});
+    });
+
+    this.obs.on("InputCreated", async () => {
+      const { inputs } = await this.getInputList();
+      io.emit("input list", { inputs });
+    });
+
+    this.obs.on("InputRemoved", async () => {
+      const { inputs } = await this.getInputList();
+      io.emit("input list", { inputs });
     });
   }
 }
