@@ -3,10 +3,8 @@ import { readFileSync } from "fs";
 import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
-import dotenv from "dotenv";
 import { OBSService } from "./obs.js";
 
-dotenv.config({ path: "../.env" });
 const env = process.env;
 
 /**
