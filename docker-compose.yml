@@ -10,4 +10,4 @@ services:
     command: "npm start"
     ports:
       - "4000:4000"
-    env_file: ./.env
+    env_file: ./new_backend/.env
