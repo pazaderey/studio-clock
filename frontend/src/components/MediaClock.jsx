@@ -15,7 +15,7 @@ export const MediaClock = () => {
     socket.on("media response", (data) => {
       switch (data.event) {
         case "start":
-          socket.emit("media info", { sourceName: data.sourceName });
+          socket.emit("media info", data.sourceName);
           break;
 
         case "stop":

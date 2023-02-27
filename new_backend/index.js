@@ -42,12 +42,13 @@ function startServer(obsService) {
     });
 
     socket.on("media info", async (data) => {
-      const mediaStatus = await obsService.getMediaInputStatus(data.sourceName);
+      const mediaStatus = await obsService.getMediaInputStatus(data);
       socket.emit("media response", {
         type: 'media',
         event: 'duration',
         duration: mediaStatus.mediaDuration,
-        time: mediaStatus.mediaCursor
+        time: mediaStatus.mediaCursor,
+        sourceName: data
       });
     });
 
