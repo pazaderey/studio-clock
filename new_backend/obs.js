@@ -1,6 +1,14 @@
 import OBSWebSocket from "obs-websocket-js";
+import { Server } from "socket.io";
 
 export class OBSService {
+  /**
+   * @param {{
+   *   ip: string,
+   *   port: number,
+   *   password?: string
+   * }} config 
+   */
   constructor(config) {
     this.config = config;
     this.obs = false;
@@ -26,22 +34,66 @@ export class OBSService {
     await this.init(config);
   }
 
+  /**
+   * @returns {Promise<{
+   *   outputActive: boolean,
+   *   outputPaused: boolean,
+   *   outputTimecode: string,
+   *   outputDuration: number,
+   *   outputBytes: number
+   * }>}
+   */
   async getRecordStatus() {
     return this.obs.call("GetRecordStatus");
   }
-
+  
+  /**
+   * @param {string} inputName 
+   * @returns {Promise<{
+   *   mediaDuration: number,
+   *   mediaCursor: number,
+   *   inputState: string
+   * }>}
+   */
   async getMediaInputStatus(inputName) {
     return this.obs.call("GetMediaInputStatus", { inputName });
   }
 
+  /**
+   * @returns {Promise<{
+   *   outputActive: boolean,
+   *   outputReconnecting: boolean,
+   *   outputTimecode: string,
+   *   outputDuration: number,
+   *   outputCongestion: number,
+   *   outputBytes: number,
+   *   outputSkippedFrames: number,
+   *   outputTotalFrames: number
+   * }>}
+   */
   async getStreamStatus() {
     return this.obs.call("GetStreamStatus");
   }
 
+  /**
+   * @returns {Promise<{
+   *   inputs: {
+   *     inputKind: string,
+   *     inputName: string,
+   *     unversionedInputKind: string
+   *   }[]
+   * }>}
+   */
   async getInputList() {
     return this.obs.call("GetInputList");
   }
 
+  /**
+   * @param {string} inputName 
+   * @returns {Promise<{
+   *   inputMuted: boolean
+   * }>}
+   */
   async getInputMute(inputName) {
     try {
       const data = await this.obs.call("GetInputMute", { inputName });
@@ -51,7 +103,15 @@ export class OBSService {
     }
   }
 
+  /**
+   * @param {Server} io 
+   */
   registerEvents(io) {
+    if (!this.obs) {
+      console.log("Cannot register events, OBS is not initialized");
+      return;
+    }
+
     this.obs.on("StreamStateChanged", (args) => {
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
