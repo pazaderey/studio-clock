@@ -26,11 +26,15 @@ export class OBSService {
     }
   }
 
-  async reconnect(config = this.config) {
+  async disconnect() {
     if (this.obs) {
       await this.obs.disconnect();
       this.obs = false;
     }
+  }
+
+  async reconnect(config = this.config) {
+    await this.disconnect();
     await this.init(config);
   }
 

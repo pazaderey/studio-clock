@@ -4,10 +4,10 @@ services:
     image: clock-front
     command: "npm start"
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:3000"
   backend:
     image: clock-back
     command: "npm start"
     ports:
       - "4000:4000"
-    env_file: ./new_backend/.env
+    env_file: .env
