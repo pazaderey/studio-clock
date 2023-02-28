@@ -4,6 +4,9 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { OBSService } from "./obs.js";
+import dotenv from "dotenv"
+
+dotenv.config({ path: "../.env" });
 
 const env = process.env;
 
