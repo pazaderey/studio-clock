@@ -1,31 +1,18 @@
-# Studio clock repository
+# Studio clock for OBS
 
-## Installation
+Репозиторий представляет собой серверное веб-приложение, позволяющее в реальном времени отслеживать
+состояние OBS через obs-websocket. Приложение показывает время с начала записи/трансляции, а при воспроизведении
+видеоролика покажет сколько времени осталось до его конца. Также в приложении есть секундомер и возможность
+отслеживать состояние различных источников звука.
 
-Backend:
+## Подготовка
+
+Если у вашего сервере есть домен, то:
+1. В файле `frontend/src/components/WebSocket.jsx` на 17 строке поменять строку `http://localhost:4000` на `https://{Ваш домен}`.
+2. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`.
+
+## Запуск через Docker
+
 ```bash
-cd ./new_backend
-npm i
+docker-compose up -d
 ```
-
-Frontend:
-```bash
-cd ./frontend
-npm i
-```
-
-## Launch the application
-
-Backend:
-```bash
-cd ./new_backend
-npm start
-```
-
-Frontend:
-```bash
-cd ./frontend
-npm start
-```
-
-
