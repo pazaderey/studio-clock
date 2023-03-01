@@ -1,6 +1,6 @@
 FROM node:18-alpine
 
-WORKDIR /home/clocks/frontend
+WORKDIR /usr/src/app
 
 COPY . .
 

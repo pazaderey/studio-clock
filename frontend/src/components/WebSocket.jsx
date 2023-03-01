@@ -14,7 +14,9 @@ export const WebSocketProvider = ({ children }) => {
 
   if (!socket) {
     dispatch({ type: types.ShowAppLoading });
-    socket = io("http://localhost:4000");
+    socket = io("http://localhost:4000", {
+      path: "/socket.io"
+    });
 
     socket.on("connect", function () {
       dispatch({

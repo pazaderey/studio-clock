@@ -1,13 +1,19 @@
-version: '3'
+version: '3.9'
 services:
   frontend:
-    image: clock-front
-    command: "npm start"
+    build: ./frontend
     ports:
-      - "${FRONTEND_PORT}:3000"
+      - "3000:3000"
+    depends_on:
+      - backend
   backend:
-    image: clock-back
-    command: "npm start"
+    build: ./new_backend
     ports:
       - "4000:4000"
-    env_file: .env
+#  nginx:
+#    build: ./nginx
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - frontend
+#      - backend
