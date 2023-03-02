@@ -7,7 +7,7 @@
 
 ## Подготовка
 
-Создать файл `new_backend/config.json` следующей структуры:
+Создать файл `new_backend/config.json` следующей структуры (также см. `config.example.json`):
 ```json
 {
     "obs": {
@@ -19,6 +19,15 @@
 ```
 При желании в соответствующие поля можно записать данные для подключения к obs-websocket. Но это не обязательно, главное создать файл.
 
+Переменные среды (также см. `.env.example`):
+
+| Имя | Описание | Значение по умолчанию |
+|---|---|---|
+| BACKEND_PORT | Порт backend сервера | `4000` |
+| FRONTEND_PORT | Порт frontend клиента | `3000` |
+| FRONTEND_URL | Адрес frontend клиента | `http://localhost` |
+
+
 Если у вашего сервера есть домен, то:
 1. В файле `frontend/src/components/WebSocket.jsx` на 17 строке поменять строку `http://localhost:4000` на `https://{Ваш домен}`.
 2. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`.
@@ -29,3 +38,28 @@
 ```bash
 docker-compose up -d
 ```
+
+## Запуск локально
+
+Удобнее при разработке, менее удобно для использования.
+
+### Установка
+
+Из корневого пути:
+1. `cd ./frontend`
+2. `npm ci`
+
+Из корневого пути:
+1. `cd ./new_backend`
+2. `npm ci`
+
+### Запуск
+
+Из корневого пути:
+1. `cd ./frontend`
+2. `npm start`
+
+Из корневого пути:
+1. `cd ./new_backend`
+2. `npm start`
+
