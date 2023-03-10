@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { WebSocketContext } from "./WebSocket";
+import ProgressBar from "./ProgressBar";
+import { useFormat } from "../hooks/customHooks";
 
 export const MediaClock = () => {
   const { socket } = useContext(WebSocketContext);
@@ -7,17 +9,19 @@ export const MediaClock = () => {
   const [time, setTime] = useState(0);
   const [start, setStart] = useState(false);
   const [timer, setTimer] = useState(null);
+  const [duration, setDuration] = useState(1);
 
   useEffect(() => {
     socket.on("media response", (data) => {
       switch (data.event) {
         case "start":
-          socket.emit("media info", { sourceName: data.sourceName });
+          socket.emit("media info", data.sourceName);
           break;
 
         case "stop":
           setStart(false);
           setTime(0);
+          setDuration(1);
           break;
 
         case "paused":
@@ -25,12 +29,14 @@ export const MediaClock = () => {
           break;
 
         case "duration":
+          setDuration(data.duration);
           setTime(data.duration - data.time);
           setStart(true);
           break;
 
         case "connect":
-          data.time > 100 && setTime(data.duration - data.time);
+          setTime(data.duration - data.time);
+          setDuration(data.duration);
           data.state === "playing" && setStart(true);
           break;
 
@@ -57,24 +63,13 @@ export const MediaClock = () => {
     );
   };
 
-  const format = (time) => {
-    const seconds = Math.floor(time / 1000) % 60;
-    const minutes = Math.floor(time / 1000 / 60) % 60;
-    const hours = Math.floor(time / 1000 / 60 / 60);
-
-    const formatted = [
-      hours.toString().padStart(2, "0"),
-      minutes.toString().padStart(2, "0"),
-      seconds.toString().padStart(2, "0"),
-    ].join(":");
-
-    return formatted;
-  };
+  const format = useFormat();
 
   return (
-    <section className="media-clock">
+    <div className="media-clock">
       <p className="description">До конца ролика:</p>
-      <p className="timer">{format(time)}</p>
-    </section>
+      <ProgressBar completed={Math.round((1 - time / duration) * 100)}/>
+      <p className="timer">{format(Math.floor(time / 1000))}</p>
+    </div>
   );
 };

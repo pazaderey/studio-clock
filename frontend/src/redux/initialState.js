@@ -3,5 +3,4 @@ export const initialState = {
   socket: false,
   error: false,
   errorText: ''
-  // blockLoading: false,
 }

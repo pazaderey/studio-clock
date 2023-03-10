@@ -22,6 +22,7 @@ export const Settings = () => {
         if (res.data.status === "error") {
           dispatch({ type: types.ShowError, payload: res.data.description });
         } else {
+          window.location.reload(false);
           dispatch({ type: types.HideError });
         }
       })
@@ -92,11 +93,10 @@ export const Settings = () => {
           Password OBS
         </label>
         <input
-          type="password"
           {...register("password")}
           onKeyPress={(e) => handleKeypress(e)}
           defaultValue=""
-          name="ip"
+          name="password"
           className="form-control"
           id="password-input"
         />

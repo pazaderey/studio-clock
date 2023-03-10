@@ -13,8 +13,9 @@ export const MainClock = () => {
   });
 
   return (
-    <section className="main-clock">
+    <div className="main-clock">
+      <p className="description">GMT+3</p>
       <p className="timer">{time}</p>
-    </section>
+    </div>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useContext } from "react";
-import { BlockClock } from "./BlockClock";
-import clock from "../img/stopwatch.png";
+import { useFormat } from "../hooks/customHooks";
 import { WebSocketContext } from "./WebSocket";
 import { useDispatch } from "react-redux";
 import { types } from "../redux/types";
@@ -11,7 +10,6 @@ export const ObsClock = () => {
 
   const [start, setStart] = useState(false);
   const [cont, setCont] = useState(false);
-  const [block, setBlock] = useState(false);
   const [timer, setTimer] = useState(null);
   const [time, setTime] = useState(0);
 
@@ -29,11 +27,11 @@ export const ObsClock = () => {
   function addSecond(time) {
     return time.split(":").map((item, index) => {
       if (index === 2) {
-        const [secs, millisecs] = item.split('.');
+        const [secs, millisecs] = item.split(".");
         return `${+secs + 1}.${millisecs}`;
       }
       return item;
-    })
+    });
   }
 
   useEffect(() => {
@@ -86,24 +84,7 @@ export const ObsClock = () => {
     return () => socket.off("my response");
   }, []);
 
-/*   useEffect(() => console.log(time), [time]); */
-
-  const format = useCallback(
-    (time) => {
-      const hours = Math.floor(time / 60 / 60);
-      const minutes = Math.floor(time / 60) % 60;
-      const seconds = time % 60;
-
-      const formatted = [
-        hours.toString().padStart(2, "0"),
-        minutes.toString().padStart(2, "0"),
-        seconds.toString().padStart(2, "0"),
-      ].join(":");
-
-      return formatted;
-    },
-    [time]
-  );
+  const format = useFormat(time);
 
   useEffect(() => {
     if (start) {
@@ -124,24 +105,12 @@ export const ObsClock = () => {
     [setTimer, setTime, time]
   );
 
-  /* useEffect(() => {
-    console.log("tick");
-  }, [tick]); */
-
   return (
-    <section className="obs-clock">
-      <div className={"streaming-container " + (!block ? "only-stream" : "")}>
-        <p className="description">С начала записи/эфира:</p>
-        <p className={"timer " + (start ? "playing-stream" : "")}>
-          {format(time)}
-        </p>
-      </div>
-      <div className="clockIcon">
-        <img onClick={() => setBlock(!block)} src={clock} alt="" />
-      </div>
-      <div className={`block-container ${block}-block`}>
-        <BlockClock format={format} setBlock={setBlock} />
-      </div>
-    </section>
+    <div className={"streaming-container only-stream"}>
+      <p className="description">С начала записи/эфира:</p>
+      <p className={"timer " + (start ? "playing-stream" : "")}>
+        {format(time)}
+      </p>
+    </div>
   );
 };

@@ -14,7 +14,9 @@ export const WebSocketProvider = ({ children }) => {
 
   if (!socket) {
     dispatch({ type: types.ShowAppLoading });
-    socket = io("http://localhost:4000");
+    socket = io("http://localhost:4000", {
+      path: "/socket.io"
+    });
 
     socket.on("connect", function () {
       dispatch({
@@ -24,16 +26,20 @@ export const WebSocketProvider = ({ children }) => {
       dispatch({ type: types.HideAppLoading });
     });
 
+    socket.on("obs_failed", () => {
+      dispatch({
+        type: types.ShowError,
+        payload: socket.connected,
+      });
+      dispatch({ type: types.HideAppLoading });
+    })
+
     socket.on("connect_error", () => {
       dispatch({
         type: types.SetSocket,
         payload: socket.connected,
       });
       dispatch({ type: types.HideAppLoading });
-    });
-
-    socket.on("connect_failed", () => {
-      console.log("ERROR");
     });
 
     socket.on("disconnect", () => {

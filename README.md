@@ -1,35 +1,65 @@
-# Studio clock repository
+# Studio clock for OBS
 
-## Installation
+Репозиторий представляет собой серверное веб-приложение, позволяющее в реальном времени отслеживать
+состояние OBS через obs-websocket. Приложение показывает время с начала записи/трансляции, а при воспроизведении
+видеоролика покажет сколько времени осталось до его конца. Также в приложении есть секундомер и возможность
+отслеживать состояние различных источников звука.
 
-Backend:
+## Подготовка
+
+Создать файл `new_backend/config.json` следующей структуры (также см. `config.example.json`):
+```json
+{
+    "obs": {
+        "ip": "",
+        "port": 0,
+        "password": ""
+    }
+}
+```
+При желании в соответствующие поля можно записать данные для подключения к obs-websocket. Но это не обязательно, главное создать файл.
+
+Переменные среды (также см. `.env.example`):
+
+| Имя | Описание | Значение по умолчанию |
+|---|---|---|
+| BACKEND_PORT | Порт backend сервера | `4000` |
+| FRONTEND_PORT | Порт frontend клиента | `3000` |
+| FRONTEND_URL | Адрес frontend клиента | `http://localhost` |
+
+
+Если у вашего сервера есть домен, то:
+1. В файле `frontend/src/components/WebSocket.jsx` на 17 строке поменять строку `http://localhost:4000` на `https://{Ваш домен}`.
+2. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`.
+3. Задать переменную среды `FRONTEND_URL=https://{Ваш домен}`
+
+## Запуск через Docker
+
 ```bash
-cd ./backend
-pip3 install -r requirements.txt
+docker-compose up -d
 ```
 
-Frontend:
-```bash
-cd ./frontend
-npm i
-```
+## Запуск локально
 
-## Launch the application
+Удобнее при разработке, менее удобно для использования.
 
-Backend:
-```bash
-cd ./backend
-flask run
-```
-or
-```bash
-python -m flask run
-```
+### Установка
 
-Frontend:
-```bash
-cd ./frontend
-npm start
-```
+Из корневого пути:
+1. `cd ./frontend`
+2. `npm ci`
 
+Из корневого пути:
+1. `cd ./new_backend`
+2. `npm ci`
+
+### Запуск
+
+Из корневого пути:
+1. `cd ./frontend`
+2. `npm start`
+
+Из корневого пути:
+1. `cd ./new_backend`
+2. `npm start`
 

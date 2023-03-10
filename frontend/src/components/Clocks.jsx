@@ -1,5 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { AudioState } from "./AudioState";
+import { BlockClock } from "./BlockClock";
+import { DirectorHints } from "./DirectorHints";
 import { ErrorBlock } from "./ErrorBlock";
 import { Loading } from "./Loading";
 import { MainClock } from "./MainClock";
@@ -8,7 +11,6 @@ import { ObsClock } from "./ObsClock";
 
 export const Clocks = () => {
   const state = useSelector((state) => state);
-
   if (!state.loading && (!state.socket || state.error)) return <ErrorBlock />;
 
   return (
@@ -17,9 +19,18 @@ export const Clocks = () => {
         <Loading size={"large"} />
       ) : (
         <>
-          <MainClock />
-          <ObsClock />
-          <MediaClock />
+          <section>
+            <MainClock />
+            <BlockClock />
+          </section>
+          <section className="director-hints">
+            <DirectorHints/>
+            <AudioState/>
+          </section>
+          <section>
+            <ObsClock />
+            <MediaClock />
+          </section>
         </>
       )}
     </div>
