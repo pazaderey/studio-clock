@@ -165,30 +165,15 @@ p.timer {
   text-align: center;
 }
 
-@media screen and (max-width: 1150px) {
-  p.description {
-    font-size: 2.5rem;
-    font-weight: bold;
-  }
-  
-  p.timer {
-    font-size: 8.5rem;
-    font-weight: 400;
-  }
-}
-
 .progress-bar-container {
   height: 20px;
   width: 100%;
-  background: lightgrey;
-  border-radius: 50;
-  margin: 50;
+  background: red;
 }
 
 .progress-bar-filler {
   height: 100%;
-  background-color: red;
-  border-radius: inherit;
+  background-color: #111;
 }
 
 section.director-hints {
@@ -218,3 +203,20 @@ section.director-hints {
   height: 150px;
 }
 
+@media screen and (not ((not (max-width: 1150px)) and (not (max-height: 800px)))) {
+  p.description {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+  
+  p.timer {
+    font-size: 8.5rem;
+    font-weight: 400;
+  }
+
+  .progress-bar-container {
+    height: 15px;
+    width: 100%;
+    background: red;
+  }
+}

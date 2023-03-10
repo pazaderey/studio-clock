@@ -13,6 +13,7 @@ export class OBSService {
     this.config = config;
     this.obs = false;
     this.stream = false;
+    this.block = 'stop';
   }
 
   async init(config = this.config) {
