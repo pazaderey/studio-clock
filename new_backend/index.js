@@ -63,6 +63,14 @@ function startServer(obsService) {
       socket.emit("audio state", { input: data, state: !inputMuted });
     });
 
+    socket.on("block check", async () => {
+      socket.emit("block status", { event: obsService.block });
+    });
+
+    socket.on("block changed", async (data) => {
+      obsService.block = data.event;
+    });
+
     console.log("Connected to front");
     let streamTime = "";
     let recordTime = "";

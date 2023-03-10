@@ -1,14 +1,26 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useContext, useEffect } from "react";
 import { useFormat } from "../hooks/customHooks";
+import { WebSocketContext } from "./WebSocket";
 import pause from "../img/pause.png";
 import play from "../img/play.png";
 import restart from "../img/restart.png";
 
 export const BlockClock = () => {
   const format = useFormat();
+  const { socket } = useContext(WebSocketContext);
 
   const [time, setTime] = useState(0);
   const [timerBlock, setTimerBlock] = useState(null);
+  const [block, setBlock] = useState("stop");
+
+  useEffect(() => {
+
+  });
+  socket.emit("block check");
+
+  socket.on("block status", async (data) => {
+    clickTimer(data.event);
+  });
 
   const tick = useCallback(() => {
     setTimerBlock(
@@ -19,6 +31,8 @@ export const BlockClock = () => {
   }, [setTimerBlock]);
 
   function clickTimer(event) {
+    socket.emit("block changed", { event });
+    setBlock(event);
     switch (event) {
       case "start":
         if (!timerBlock) {
@@ -54,7 +68,7 @@ export const BlockClock = () => {
           {" "}
           <img src={pause} alt="pause" />{" "}
         </button>
-        <button className="btn btn-secondary" onClick={() => clickTimer("restart")}>
+        <button className="btn btn-secondary" onClick={() => clickTimer("stop")}>
           {" "}
           <img src={restart} alt="restart" />
         </button>
