@@ -39,6 +39,25 @@ p.timer {
   justify-content: center;
 }
 
+.clock-only {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.clock-only > p.description {
+  font-size: 5rem;
+  font-weight: bold;
+}
+
+.clock-only > p.timer {
+  font-size: 14rem;
+  font-weight: 400;
+}
+
 .obs-clock {
   position: relative;
 }

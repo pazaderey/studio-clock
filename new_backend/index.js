@@ -113,7 +113,12 @@ function startServer(obsService) {
 }
 
 (async function main() {
-  const { obs: obsConfig } = JSON.parse(readFileSync("config.json"));
+  let obsConfig;
+  try {
+    obsConfig = JSON.parse(readFileSync("config.json")).obs;
+  } catch(e) {
+    obsConfig = { ip: "", port: 0 };
+  }
   const obsService = new OBSService(obsConfig);
   await obsService.init();
   startServer(obsService);
