@@ -35,6 +35,19 @@ function startServer(obsService) {
     return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
   });
 
+  app.post("/message", async ({ body }, res) => {
+    try {
+      const message = body.message.toString();
+      if (message && message.length < 44) {
+        io.emit("director hint", { message: message })
+        return res.send({ status: "ok" });
+      }
+      return res.send({status: "error", description: "Сообщение слишком длинное."})
+    } catch(e) {
+      return res.send({status: "error", description: "Сообщение нельзя преобразовать к тексту."});
+    }
+  });
+
   io.on("connection", async (socket) => {
 
     socket.on("record info", async () => {
