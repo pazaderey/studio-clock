@@ -53,6 +53,11 @@ docker-compose up -d
 1. `cd ./new_backend`
 2. `npm ci`
 
+В файле `./frontend/package.json` заменить 46 строку на:
+```json
+  "proxy": "http://localhost:4000"
+```
+
 ### Запуск
 
 Из корневого пути:
