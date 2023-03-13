@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 
 export const MainClock = ({ clockOnly }) => {
-  const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour12: false }));
+  const [time, setTime] = useState(new Date().toLocaleTimeString("en-GB"));
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTime(new Date().toLocaleTimeString([], { hour12: false }));
+      setTime(new Date().toLocaleTimeString("en-GB"));
     }, 1000);
     return () => {
       clearInterval(timer);
