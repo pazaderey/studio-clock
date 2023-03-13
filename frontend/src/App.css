@@ -48,13 +48,8 @@ p.timer {
   text-align: center;
 }
 
-.clock-only > p.description {
-  font-size: 5rem;
-  font-weight: bold;
-}
-
 .clock-only > p.timer {
-  font-size: 14rem;
+  font-size: 18rem;
   font-weight: 400;
 }
 

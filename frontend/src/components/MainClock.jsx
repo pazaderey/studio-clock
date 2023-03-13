@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
 
 export const MainClock = ({ clockOnly }) => {
-  const [time, setTime] = useState(new Date().toLocaleTimeString("en-GB"));
+  function getTime() {
+    return new Date().toLocaleTimeString("en-GB", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  }
 
+  const [time, setTime] = useState(getTime());
   useEffect(() => {
     const timer = setInterval(() => {
-      setTime(new Date().toLocaleTimeString("en-GB"));
+      setTime(getTime);
     }, 1000);
     return () => {
       clearInterval(timer);
@@ -14,7 +22,7 @@ export const MainClock = ({ clockOnly }) => {
 
   return (
     <div className={clockOnly ? "clock-only" : "main-clock"}>
-      <p className="description">GMT+3</p>
+      {clockOnly ? "" : <p className="description">GMT+3</p>}
       <p className="timer">{time}</p>
     </div>
   );
