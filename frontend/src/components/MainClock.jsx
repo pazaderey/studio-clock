@@ -7,9 +7,10 @@ export const MainClock = ({ clockOnly }) => {
 
   const [time, setTime] = useState(getTime());
   useEffect(() => {
-    setInterval(() => {
+    const timer = setInterval(() => {
       setTime(getTime);
     }, 1000);
+    return () => clearInterval(timer);
   });
 
   return (

@@ -17,9 +17,14 @@ export function AudioState() {
       }
     });
 
-    socket.on("input list", (data) => {
-      setInputList(data.inputs.map(i => i.inputName));
+    socket.on("input list", ({ inputs }) => {
+      setInputList(inputs.map(i => i.inputName));
     });
+
+    return () => {
+      socket.off("my response");
+      socket.off("input list");
+    };
   });
 
   useEffect(() => {
@@ -28,6 +33,8 @@ export function AudioState() {
         data.state ? setState(audio) : setState(noAudio);
       }
     });
+
+    return () => socket.off("audio state");
   }, [source]);
 
   function changeSource() {

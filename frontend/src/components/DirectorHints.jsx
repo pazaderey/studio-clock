@@ -11,6 +11,8 @@ export function DirectorHints() {
         setHint(data.message);
       }
     });
+
+    return () => socket.off("director hint");
   });
 
   return (

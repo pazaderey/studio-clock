@@ -11,15 +11,25 @@ export const BlockClock = () => {
 
   const [time, setTime] = useState(0);
   const [timerBlock, setTimerBlock] = useState(null);
-  const [block, setBlock] = useState("stop");
 
   useEffect(() => {
+    socket.emit("block check", { type: "connection" });
 
-  });
-  socket.emit("block check");
-
-  socket.on("block status", async (data) => {
-    clickTimer(data.event);
+    socket.on("block status", ({ event }) => {
+      switch (event) {
+        case "start":
+          if (!timerBlock) {
+            tick();
+          }
+          break;
+        case "pause":
+          pauseTimer();
+          break;
+        default:
+          setTime(0);
+          pauseTimer();
+      }
+    });
   });
 
   const tick = useCallback(() => {
@@ -32,21 +42,7 @@ export const BlockClock = () => {
 
   function clickTimer(event) {
     socket.emit("block changed", { event });
-    setBlock(event);
-    switch (event) {
-      case "start":
-        if (!timerBlock) {
-          tick();
-        }
-        break;
-      case "pause":
-        pauseTimer();
-        break;
-      default:
-        setTime(0);
-        pauseTimer();
-    }
-  };
+  }
 
   function pauseTimer() {
     clearInterval(timerBlock);

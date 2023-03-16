@@ -37,7 +37,9 @@ export const MediaClock = () => {
         case "connect":
           setTime(data.duration - data.time);
           setDuration(data.duration);
-          data.state === "playing" && setStart(true);
+          if (data.state === "OBS_MEDIA_STATE_PLAYING") {
+            setStart(true);
+          }
           break;
 
         default:
