@@ -34,13 +34,21 @@ function startServer(obsService) {
   obsService.registerEvents(io);
 
   io.on("connection", async (socket) => {
+    logger.info("Connected to front");
+    if (!obsService.obs) {
+      socket.emit("obs_failed", { type: 'connect', error: true });
+      debugEvent("obs_failed", { type: 'connect', error: true });
+      return;
+    }
+    let streamTime = "";
+    let recordTime = "";
 
     app.post("/reconnect", async (req, res) => {
       logger.debug(`Got reconnect with body: ${JSON.stringify(req.body)}`);
       await obsService.reconnect(req.body);
       if (obsService.obs) {
         obsService.registerEvents(io);
-        socket.emit("my response", { type: "connect" });
+        io.emit("my response", { type: "connect" });
         return res.send({ status: "ok" });
       }
       return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
@@ -50,11 +58,12 @@ function startServer(obsService) {
       logger.debug(`Got message with body ${JSON.stringify(body)}`);
       try {
         const message = body.message.toString();
-        if (message && message.length < 44) {
+        if (message && message.length < 33) {
+          obsService.hint = message;
           io.emit("director hint", { message });
           return res.send({ status: "ok" });
         }
-        return res.send({status: "error", description: "Сообщение слишком длинное."})
+        return res.send({status: "error", description: "Сообщение слишком длинное (больше 33 символов)."})
       } catch(e) {
         return res.send({status: "error", description: "Сообщение нельзя преобразовать к тексту."});
       }
@@ -102,51 +111,52 @@ function startServer(obsService) {
       obsService.block = event;
       io.emit("block status", { event });
       debugEvent("block status", { event });
+    });  
+
+    const streamStatus = await obsService.getStreamStatus();
+    const recordStatus = await obsService.getRecordStatus();
+    if (streamStatus.outputActive) {
+      streamTime = streamStatus.outputTimecode;
+    }
+
+    if (recordStatus.outputActive) {
+      recordTime = recordStatus.outputTimecode;
+    }
+
+    socket.emit("my response", {
+      type: 'connect',
+      stream: streamStatus.outputActive,
+      recording: recordStatus.outputActive,
+      recordPause: recordStatus.outputPaused,
+      streamTime,
+      recordTime
     });
 
-    console.log("Connected to front");
-    let streamTime = "";
-    let recordTime = "";
-    if (obsService.obs) {
-      const streamStatus = await obsService.getStreamStatus();
-      const recordStatus = await obsService.getRecordStatus();
-      if (streamStatus.outputActive) {
-        streamTime = streamStatus.outputTimecode;
-      }
+    socket.emit("director hint", { message: obsService.hint });
 
-      if (recordStatus.outputActive) {
-        recordTime = recordStatus.outputTimecode;
+    const { inputs } = await obsService.getInputList();
+    if (inputs?.length) {
+      let mediaInput;
+      for (const input of inputs) {
+        const tempStatus = await obsService.getMediaInputStatus(input.inputName);
+        if (["OBS_MEDIA_STATE_PAUSED", "OBS_MEDIA_STATE_PLAYING"].includes(tempStatus.mediaState)) {
+          mediaInput = input.inputName;
+          break;
+        }
       }
-
-      socket.emit("my response", {
-        type: 'connect',
-        stream: streamStatus.outputActive,
-        recording: recordStatus.outputActive,
-        recordPause: recordStatus.outputPaused,
-        streamTime,
-        recordTime
+      if (!mediaInput) {
+        return;
+      }
+      const mediaStatus = await obsService.getMediaInputStatus(mediaInput);
+      const duration = mediaStatus.mediaDuration;
+      const time = mediaStatus.mediaCursor;
+      socket.emit("media response", {
+        type: 'media',
+        event: 'connect',
+        state: mediaStatus.mediaState,
+        time,
+        duration
       });
-
-      const { inputs } = await obsService.getInputList();
-      if (inputs?.length) {
-        let mediaInput;
-        for (const input of inputs) {
-          const tempStatus = await obsService.getMediaInputStatus(input.inputName);
-          if (["OBS_MEDIA_STATE_PAUSED", "OBS_MEDIA_STATE_PLAYING"].includes(tempStatus.mediaState)) {
-            mediaInput = input.inputName;
-            break;
-          }
-        }
-        if (mediaInput) {
-          const mediaStatus = await obsService.getMediaInputStatus(mediaInput);
-          const duration = mediaStatus.mediaDuration;
-          const time = mediaStatus.mediaCursor;
-          socket.emit("media response", { type: 'media', event: 'connect', state: mediaStatus.mediaState, time, duration });
-        }
-      }
-    } else {
-      socket.emit("obs_failed", { type: 'connect', error: true });
-      debugEvent("obs_failed", { type: 'connect', error: true });
     }
   });
 

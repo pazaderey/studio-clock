@@ -17,7 +17,7 @@ export function DirectorHints() {
 
   return (
     <div className="block-director-hint">
-      <p className="description">{hint}</p>
+      <p className="hint">{hint}</p>
     </div>
   )
 }

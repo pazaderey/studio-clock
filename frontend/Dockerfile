@@ -2,7 +2,7 @@ FROM node:18-alpine as builder
 
 COPY package.json package-lock.json ./
 
-RUN npm install && mkdir /react-ui && mv ./node_modules ./react-ui
+RUN npm ci && mkdir /react-ui && mv ./node_modules ./react-ui
 
 WORKDIR /react-ui
 

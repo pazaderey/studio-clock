@@ -30,6 +30,11 @@ p.timer {
   font-weight: 400;
 }
 
+p.hint {
+  font-size: 6rem;
+  font-weight: 400;
+}
+
 .main-clock {
   width: 50%;
   height: 100%;

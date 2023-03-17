@@ -36,7 +36,7 @@ export const BlockClock = () => {
         setTime((prevTime) => prevTime + 1);
       }, 1000)
     );
-  }, [setTimerBlock]);
+  }, []);
 
   function clickTimer(event) {
     socket.emit("block changed", { event });

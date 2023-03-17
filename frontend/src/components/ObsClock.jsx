@@ -46,8 +46,8 @@ export const ObsClock = () => {
           break;
 
         case "record":
-          if (data.event === "start") {
-            !data.stream && setStart(true);
+          if (data.event === "start" && !data.stream) {
+            setStart(true);
           } else if (data.event === "paused") {
             setStart(false);
             setCont(false);

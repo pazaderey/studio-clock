@@ -22,6 +22,7 @@ export class OBSService {
     this.stream = false;
     this.block = 'stop';
     this._subscribed = false;
+    this.hint = "";
   }
 
   async init(config = this.config) {
@@ -126,6 +127,7 @@ export class OBSService {
     }
 
     if (this._subscribed) {
+      logger.debug("OBS is already subscribed");
       return;
     }
 
