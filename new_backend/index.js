@@ -31,7 +31,33 @@ function startServer(obsService) {
     cors: `${FRONT_URL}:${FRONT_PORT}`
   });
   logger.debug("Started IO");
-  obsService.registerEvents(io);
+
+  app.post("/reconnect", async (req, res) => {
+    logger.debug(`Got reconnect with body: ${JSON.stringify(req.body)}`);
+    await obsService.reconnect(req.body);
+    if (obsService.obs) {
+      obsService.registerEvents(io);
+      io.emit("my response", { type: "connect" });
+      return res.send({ status: "ok" });
+    }
+    io.emit("obs_failed", { type: 'connect', error: true });
+    return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
+  });
+
+  app.post("/message", async ({ body }, res) => {
+    logger.debug(`Got message with body ${JSON.stringify(body)}`);
+    try {
+      const message = body.message.toString();
+      if (message && message.length < 34) {
+        obsService.hint = message;
+        io.emit("director hint", { message });
+        return res.send({ status: "ok" });
+      }
+      return res.send({status: "error", description: "Сообщение слишком длинное (больше 33 символов)."})
+    } catch(e) {
+      return res.send({status: "error", description: "Сообщение нельзя преобразовать к тексту."});
+    }
+  });
 
   io.on("connection", async (socket) => {
     logger.info("Connected to front");
@@ -40,35 +66,9 @@ function startServer(obsService) {
       debugEvent("obs_failed", { type: 'connect', error: true });
       return;
     }
+    obsService.registerEvents(io);
     let streamTime = "";
     let recordTime = "";
-
-    app.post("/reconnect", async (req, res) => {
-      logger.debug(`Got reconnect with body: ${JSON.stringify(req.body)}`);
-      await obsService.reconnect(req.body);
-      if (obsService.obs) {
-        obsService.registerEvents(io);
-        io.emit("my response", { type: "connect" });
-        return res.send({ status: "ok" });
-      }
-      io.emit("obs_failed", { type: 'connect', error: true });
-      return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
-    });
-  
-    app.post("/message", async ({ body }, res) => {
-      logger.debug(`Got message with body ${JSON.stringify(body)}`);
-      try {
-        const message = body.message.toString();
-        if (message && message.length < 34) {
-          obsService.hint = message;
-          io.emit("director hint", { message });
-          return res.send({ status: "ok" });
-        }
-        return res.send({status: "error", description: "Сообщение слишком длинное (больше 33 символов)."})
-      } catch(e) {
-        return res.send({status: "error", description: "Сообщение нельзя преобразовать к тексту."});
-      }
-    });
 
     socket.on("record info", async () => {
       const recordStatus = await obsService.getRecordStatus();
