@@ -21,6 +21,7 @@ export class OBSService {
     this.obs = false;
     this.stream = false;
     this.block = 'stop';
+    this._subscribed = false;
   }
 
   async init(config = this.config) {
@@ -120,9 +121,19 @@ export class OBSService {
    */
   registerEvents(io) {
     if (!this.obs) {
-      console.log("Cannot register events, OBS is not initialized");
+      logger.error("Cannot register events, OBS is not initialized");
       return;
     }
+
+    if (this._subscribed) {
+      return;
+    }
+
+    this.obs.on("ConnectionClosed", (error) => {
+      logger.info("OBS connection stopped");
+      this.obs = false;
+      io.emit("obs_failed", { type: 'connect', error: true });
+    });
 
     this.obs.on("StreamStateChanged", (args) => {
       debugOBSEvent("StreamStateChanged", args);
@@ -188,5 +199,7 @@ export class OBSService {
       const { inputs } = await this.getInputList();
       io.emit("input list", { inputs });
     });
+
+    this._subscribed = true;
   }
 }

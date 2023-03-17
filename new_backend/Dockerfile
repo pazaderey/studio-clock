@@ -4,6 +4,6 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm ci && npm prune --production
+RUN npm ci
 
 CMD ["npm", "start"]

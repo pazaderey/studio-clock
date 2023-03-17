@@ -13,8 +13,6 @@ export const BlockClock = () => {
   const [timerBlock, setTimerBlock] = useState(null);
 
   useEffect(() => {
-    socket.emit("block check", { type: "connection" });
-
     socket.on("block status", ({ event }) => {
       switch (event) {
         case "start":

@@ -51,7 +51,7 @@ function startServer(obsService) {
       try {
         const message = body.message.toString();
         if (message && message.length < 44) {
-          io.emit("director hint", { message: message });
+          io.emit("director hint", { message });
           return res.send({ status: "ok" });
         }
         return res.send({status: "error", description: "Сообщение слишком длинное."})
@@ -108,7 +108,6 @@ function startServer(obsService) {
     let streamTime = "";
     let recordTime = "";
     if (obsService.obs) {
-      obsService.registerEvents(io);
       const streamStatus = await obsService.getStreamStatus();
       const recordStatus = await obsService.getRecordStatus();
       if (streamStatus.outputActive) {
@@ -119,7 +118,7 @@ function startServer(obsService) {
         recordTime = recordStatus.outputTimecode;
       }
 
-      io.emit("my response", {
+      socket.emit("my response", {
         type: 'connect',
         stream: streamStatus.outputActive,
         recording: recordStatus.outputActive,
@@ -154,9 +153,7 @@ function startServer(obsService) {
   const PORT = env.BACKEND_PORT || 4000;
   server.listen(PORT, () => {
     logger.info(`Server started on port ${PORT}`);
-    if (env.NODE_ENV !== "production") {
-      logger.debug("Logs containing Unicode characters may display incorrect");
-    }
+    logger.debug("Logs containing Unicode characters may display incorrect");
   });
 }
 
