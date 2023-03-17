@@ -1,24 +1,15 @@
-FROM node:18-alpine as builder
+FROM node:18-alpine
 
-COPY package.json package-lock.json ./
-
-RUN npm ci && mkdir /react-ui && mv ./node_modules ./react-ui
-
-WORKDIR /react-ui
+WORKDIR /usr/src/app
 
 COPY . .
 
+RUN npm ci 
+
 RUN npm run build
 
+ENV NODE_ENV production
 
-FROM nginx:alpine
+EXPOSE 3000
 
-COPY ./nginx.conf /etc/nginx/nginx.conf
-
-RUN rm -rf /usr/share/nginx/html/*
-
-COPY --from=builder /react-ui/build /usr/share/nginx/html
-
-EXPOSE 3000 80
-
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD [ "npm", "start" ]

@@ -51,6 +51,7 @@ function startServer(obsService) {
         io.emit("my response", { type: "connect" });
         return res.send({ status: "ok" });
       }
+      io.emit("obs_failed", { type: 'connect', error: true });
       return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
     });
   
@@ -58,7 +59,7 @@ function startServer(obsService) {
       logger.debug(`Got message with body ${JSON.stringify(body)}`);
       try {
         const message = body.message.toString();
-        if (message && message.length < 33) {
+        if (message && message.length < 34) {
           obsService.hint = message;
           io.emit("director hint", { message });
           return res.send({ status: "ok" });
