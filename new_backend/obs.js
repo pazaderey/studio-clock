@@ -5,7 +5,7 @@ import { getLogger } from "./logger.js";
 const logger = getLogger();
 
 function debugOBSEvent(name, data) {
-  logger.debug(`Got "${name}" with data: ${JSON.stringify(data)}`);
+  logger.debug(`Event "${name}" with data: ${JSON.stringify(data)}`);
 }
 
 export class OBSService {
@@ -138,45 +138,45 @@ export class OBSService {
     });
 
     this.obs.on("StreamStateChanged", (args) => {
-      debugOBSEvent("StreamStateChanged", args);
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
           this.stream = true;
           io.emit("my response", { type: 'stream', event: 'start', stream: this.stream });
+          debugOBSEvent("my response", { type: 'stream', event: 'start', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_STOPPED":
           this.stream = false;
           io.emit("my response", { type: 'stream', event: 'stop', stream: this.stream });
+          debugOBSEvent("my response", { type: 'stream', event: 'stop', stream: this.stream });
           break;
       }
     });
 
     this.obs.on("RecordStateChanged", (args) => {
-      debugOBSEvent("RecordStateChanged", args);
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
           io.emit("my response", { type: 'record', event: 'start', stream: this.stream });
+          debugOBSEvent("my response", { type: 'record', event: 'start', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_STOPPED":
           io.emit("my response", { type: 'record', event: 'stop', stream: this.stream });
+          debugOBSEvent("my response", { type: 'record', event: 'stop', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_PAUSED":
           io.emit("my response", { type: 'record', event: 'paused', stream: this.stream });
+          debugOBSEvent("my response", { type: 'record', event: 'stop', stream: this.stream });
       }
     });
 
     this.obs.on("MediaInputPlaybackStarted", (args) => {
-      debugOBSEvent("MediaInputPlaybackStarted", args);
       io.emit("media response", { type: "media", event: "start", sourceName: args.inputName });
     });
 
     this.obs.on("MediaInputPlaybackEnded", (args) => {
-      debugOBSEvent("MediaInputPlaybackEnded", args);
       io.emit("media response", { type: "media", event: "stop" });
     });
 
     this.obs.on("MediaInputActionTriggered", (args) => {
-      debugOBSEvent("MediaInputActionTriggered", args);
       this.stream = false;
       switch (args.mediaAction) {
         case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE":
@@ -186,18 +186,15 @@ export class OBSService {
     });
 
     this.obs.on("InputMuteStateChanged", (args) => {
-      debugOBSEvent("InputMuteStateChanged", args);
       io.emit("audio state", { input: args.inputName, state: !args.inputMuted});
     });
 
     this.obs.on("InputCreated", async () => {
-      debugOBSEvent("InputCreated", {});
       const { inputs } = await this.getInputList();
       io.emit("input list", { inputs });
     });
 
     this.obs.on("InputRemoved", async () => {
-      debugOBSEvent("InputRemoved", {});
       const { inputs } = await this.getInputList();
       io.emit("input list", { inputs });
     });

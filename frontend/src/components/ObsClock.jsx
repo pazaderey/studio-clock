@@ -24,24 +24,15 @@ export const ObsClock = () => {
     return sec;
   };
 
-  function addSecond(time) {
-    return time.split(":").map((item, index) => {
-      if (index === 2) {
-        const [secs, millisecs] = item.split(".");
-        return `${+secs + 1}.${millisecs}`;
-      }
-      return item;
-    });
-  }
-
   useEffect(() => {
     socket.on("my response", (data) => {
+      console.log("my");
       switch (data.type) {
         case "connect":
           if (data.stream) {
-            continueTime(true, addSecond(data.streamTime));
+            continueTime(true, data.streamTime.split(":"));
           } else if (data.recording) {
-            continueTime(!data.recordPause, addSecond(data.recordTime));
+            continueTime(!data.recordPause, data.recordTime.split(":"));
           } else break;
           break;
 
