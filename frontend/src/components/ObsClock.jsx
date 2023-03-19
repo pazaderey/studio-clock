@@ -25,8 +25,7 @@ export const ObsClock = () => {
   };
 
   useEffect(() => {
-    socket.on("my response", (data) => {
-      console.log("my");
+    socket.on("obs state", (data) => {
       switch (data.type) {
         case "connect":
           if (data.stream) {

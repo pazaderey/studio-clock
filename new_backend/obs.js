@@ -16,75 +16,43 @@ export class OBSService {
    *   password?: string
    * }} config 
    */
-  constructor(config) {
-    this.config = config;
-    this.obs = false;
+  constructor() {
+    this.config = {};
+    this.obs = new OBSWebSocket();
+    this.connected = false;
     this.stream = false;
     this.block = 'stop';
-    this._subscribed = false;
     this.hint = "";
   }
 
-  async init(config = this.config) {
+  async connect(config) {
+    await this.disconnect();
     try {
-      this.obs = new OBSWebSocket();
       await this.obs.connect(`ws://${config.ip}:${config.port}`, config.password);
+      this.connected = true;
+      this.config = Object.create(config);
       logger.info("Connected to new OBS");
     } catch(e) {
-      this.obs = false;
+      this.connected = false;
       logger.error("Connection to OBS failed");
     }
   }
 
   async disconnect() {
-    if (this.obs) {
+    if (this.connected) {
       await this.obs.disconnect();
-      this.obs = false;
+      this.connected = false;
     }
   }
 
-  async reconnect(config = this.config) {
-    await this.disconnect();
-    await this.init(config);
-  }
-
-  /**
-   * @returns {Promise<{
-   *   outputActive: boolean
-   *   outputPaused: boolean
-   *   outputTimecode: string
-   *   outputDuration: number
-   *   outputBytes: number
-   * }>}
-   */
   async getRecordStatus() {
     return this.obs.call("GetRecordStatus");
   }
   
-  /**
-   * @param {string} inputName 
-   * @returns {Promise<{
-   *   mediaDuration: number
-   *   mediaCursor: number
-   *   inputState: string
-   * }>}
-   */
   async getMediaInputStatus(inputName) {
     return this.obs.call("GetMediaInputStatus", { inputName });
   }
 
-  /**
-   * @returns {Promise<{
-   *   outputActive: boolean
-   *   outputReconnecting: boolean
-   *   outputTimecode: string
-   *   outputDuration: number
-   *   outputCongestion: number
-   *   outputBytes: number
-   *   outputSkippedFrames: number
-   *   outputTotalFrames: number
-   * }>}
-   */
   async getStreamStatus() {
     return this.obs.call("GetStreamStatus");
   }
@@ -102,12 +70,6 @@ export class OBSService {
     return this.obs.call("GetInputList");
   }
 
-  /**
-   * @param {string} inputName 
-   * @returns {Promise<{
-   *   inputMuted: boolean
-   * }>}
-   */
   async getInputMute(inputName) {
     try {
       const data = await this.obs.call("GetInputMute", { inputName });
@@ -121,16 +83,6 @@ export class OBSService {
    * @param {Server} io 
    */
   registerEvents(io) {
-    if (!this.obs) {
-      logger.error("Cannot register events, OBS is not initialized");
-      return;
-    }
-
-    if (this._subscribed) {
-      logger.debug("OBS is already subscribed");
-      return;
-    }
-
     this.obs.on("ConnectionClosed", (error) => {
       logger.info("OBS connection stopped");
       this.obs = false;
@@ -141,12 +93,12 @@ export class OBSService {
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
           this.stream = true;
-          io.emit("my response", { type: 'stream', event: 'start', stream: this.stream });
+          io.emit("obs state", { type: 'stream', event: 'start', stream: this.stream });
           debugOBSEvent("my response", { type: 'stream', event: 'start', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_STOPPED":
           this.stream = false;
-          io.emit("my response", { type: 'stream', event: 'stop', stream: this.stream });
+          io.emit("obs state", { type: 'stream', event: 'stop', stream: this.stream });
           debugOBSEvent("my response", { type: 'stream', event: 'stop', stream: this.stream });
           break;
       }
@@ -155,15 +107,15 @@ export class OBSService {
     this.obs.on("RecordStateChanged", (args) => {
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
-          io.emit("my response", { type: 'record', event: 'start', stream: this.stream });
+          io.emit("obs state", { type: 'record', event: 'start', stream: this.stream });
           debugOBSEvent("my response", { type: 'record', event: 'start', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_STOPPED":
-          io.emit("my response", { type: 'record', event: 'stop', stream: this.stream });
+          io.emit("obs state", { type: 'record', event: 'stop', stream: this.stream });
           debugOBSEvent("my response", { type: 'record', event: 'stop', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_PAUSED":
-          io.emit("my response", { type: 'record', event: 'paused', stream: this.stream });
+          io.emit("obs state", { type: 'record', event: 'paused', stream: this.stream });
           debugOBSEvent("my response", { type: 'record', event: 'stop', stream: this.stream });
       }
     });
@@ -198,7 +150,5 @@ export class OBSService {
       const { inputs } = await this.getInputList();
       io.emit("input list", { inputs });
     });
-
-    this._subscribed = true;
   }
 }

@@ -31,12 +31,13 @@ function startServer(obsService) {
     cors: `${FRONT_URL}:${FRONT_PORT}`
   });
   logger.debug("Started IO");
+  obsService.registerEvents(io);
 
   app.post("/reconnect", async (req, res) => {
     logger.debug(`Got reconnect with body: ${JSON.stringify(req.body)}`);
-    await obsService.reconnect(req.body);
-    if (obsService.obs) {
-      obsService.registerEvents(io);
+
+    await obsService.connect(req.body);
+    if (obsService.connected) {
       io.emit("my response", { type: "connect" });
       return res.send({ status: "ok" });
     }
@@ -61,21 +62,13 @@ function startServer(obsService) {
 
   io.on("connection", async (socket) => {
     logger.info("Connected to front");
-    if (!obsService.obs) {
+    if (!obsService.connected) {
       socket.emit("obs_failed", { type: 'connect', error: true });
       debugEvent("obs_failed", { type: 'connect', error: true });
       return;
     }
-    obsService.registerEvents(io);
     let streamTime = "";
     let recordTime = "";
-
-    socket.on("record info", async () => {
-      const recordStatus = await obsService.getRecordStatus();
-      const data = { type: "return", time: recordStatus.outputTimecode };
-      socket.emit("my response", data);
-      debugEvent("my response", data);
-    });
 
     socket.on("media info", async (data) => {
       const mediaStatus = await obsService.getMediaInputStatus(data);
@@ -124,7 +117,7 @@ function startServer(obsService) {
       recordTime = recordStatus.outputTimecode;
     }
 
-    socket.emit("my response", {
+    socket.emit("obs state", {
       type: 'connect',
       stream: streamStatus.outputActive,
       recording: recordStatus.outputActive,
@@ -175,8 +168,8 @@ function startServer(obsService) {
   } catch(e) {
     obsConfig = { ip: "", port: 0 };
   }
-  const obsService = new OBSService(obsConfig);
-  await obsService.init();
+  const obsService = new OBSService();
+  await obsService.connect(obsConfig);
   startServer(obsService);
 })().catch(e => logger.error(e));
 
