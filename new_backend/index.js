@@ -96,15 +96,10 @@ function startServer(obsService) {
       debugEvent("audio state", eventData);
     });
 
-    socket.on("block check", () => {
-      socket.emit("block status", { event: obsService.block });
-      debugEvent("block status", { event: obsService.block });
-    });
-
-    socket.on("block changed", ({ event }) => {
-      obsService.block = event;
-      io.emit("block status", { event });
-      debugEvent("block status", { event });
+    socket.on("block changed", (data) => {
+      obsService.block = { ...data };
+      io.emit("block status", data);
+      debugEvent("block status", );
     });  
 
     const streamStatus = await obsService.getStreamStatus();
@@ -127,8 +122,11 @@ function startServer(obsService) {
     });
 
     socket.emit("director hint", { message: obsService.hint });
+    socket.emit("block status", { ...obsService.block });
+    debugEvent("block status", { ...obsService.block });
 
     const { inputs } = await obsService.getInputList();
+    socket.emit("input list", { inputs });
     if (inputs?.length) {
       let mediaInput;
       for (const input of inputs) {

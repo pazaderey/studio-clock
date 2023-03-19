@@ -57,6 +57,7 @@ export const ObsClock = () => {
             setCont(false);
             setStart(true);
           } else {
+            setTime(0);
             setCont(false);
             setStart(false);
           }

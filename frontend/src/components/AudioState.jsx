@@ -11,20 +11,11 @@ export function AudioState() {
   const { socket } = useContext(WebSocketContext);
 
   useEffect(() => {
-    socket.on("my response", (data) => {
-      if (data.type === "connect") {
-        socket.emit("input list");
-      }
-    });
-
     socket.on("input list", ({ inputs }) => {
       setInputList(inputs.map(i => i.inputName));
     });
 
-    return () => {
-      socket.off("my response");
-      socket.off("input list");
-    };
+    return () => socket.off("input list");
   });
 
   useEffect(() => {

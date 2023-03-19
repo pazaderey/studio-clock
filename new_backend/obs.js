@@ -9,32 +9,29 @@ function debugOBSEvent(name, data) {
 }
 
 export class OBSService {
-  /**
-   * @param {{
-   *   ip: string
-   *   port: number
-   *   password?: string
-   * }} config 
-   */
   constructor() {
-    this.config = {};
     this.obs = new OBSWebSocket();
     this.connected = false;
     this.stream = false;
-    this.block = 'stop';
+    this.block = { state: "stop", time: 0 };
     this.hint = "";
   }
 
+  /**
+   * @param {{
+  *   ip: string
+  *   port: number
+  *   password?: string
+  * }} config 
+  */
   async connect(config) {
     await this.disconnect();
     try {
       await this.obs.connect(`ws://${config.ip}:${config.port}`, config.password);
       this.connected = true;
-      this.config = Object.create(config);
       logger.info("Connected to new OBS");
     } catch(e) {
-      this.connected = false;
-      logger.error("Connection to OBS failed");
+      console.log(e);
     }
   }
 
@@ -43,6 +40,7 @@ export class OBSService {
       await this.obs.disconnect();
       this.connected = false;
     }
+    logger.info("Disconnected from OBS");
   }
 
   async getRecordStatus() {
@@ -85,7 +83,7 @@ export class OBSService {
   registerEvents(io) {
     this.obs.on("ConnectionClosed", (error) => {
       logger.info("OBS connection stopped");
-      this.obs = false;
+      this.connected = false;
       io.emit("obs_failed", { type: 'connect', error: true });
     });
 

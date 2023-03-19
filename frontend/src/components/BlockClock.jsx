@@ -9,26 +9,29 @@ export const BlockClock = () => {
   const format = useFormat();
   const { socket } = useContext(WebSocketContext);
 
+  const [startBlock, setStartBlock] = useState("stop");
   const [time, setTime] = useState(0);
   const [timerBlock, setTimerBlock] = useState(null);
 
   useEffect(() => {
-    socket.on("block status", ({ event }) => {
-      switch (event) {
+    socket.on("block status", (data) => {
+      setTime(data.time);
+      switch (data.state) {
         case "start":
           if (!timerBlock) {
-            tick();
+            setStartBlock("start");
           }
           break;
         case "pause":
-          pauseTimer();
+          setStartBlock("stop");
           break;
         default:
           setTime(0);
-          pauseTimer();
+          setStartBlock("stop");
       }
     });
-  });
+    return () => socket.off("block status");
+  }, []);
 
   const tick = useCallback(() => {
     setTimerBlock(
@@ -36,16 +39,22 @@ export const BlockClock = () => {
         setTime((prevTime) => prevTime + 1);
       }, 1000)
     );
-  }, []);
+  }, [setTimerBlock, setTime, time]);
 
   function clickTimer(event) {
-    socket.emit("block changed", { event });
+    socket.emit("block changed", { state: event, time });
   }
 
-  function pauseTimer() {
-    clearInterval(timerBlock);
-    setTimerBlock(null);
-  }
+  useEffect(() => {
+    switch (startBlock) {
+      case "start":
+        tick();
+        break;
+      default:
+        clearInterval(timerBlock);
+        break
+    }
+  }, [startBlock]);
 
   return (
     <div className="block-info">
@@ -62,7 +71,10 @@ export const BlockClock = () => {
           {" "}
           <img src={pause} alt="pause" />{" "}
         </button>
-        <button className="btn btn-secondary" onClick={() => clickTimer("stop")}>
+        <button
+          className="btn btn-secondary"
+          onClick={() => clickTimer("stop")}
+        >
           {" "}
           <img src={restart} alt="restart" />
         </button>
