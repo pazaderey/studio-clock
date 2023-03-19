@@ -49,12 +49,12 @@ function startServer(obsService) {
     logger.debug(`Got message with body ${JSON.stringify(body)}`);
     try {
       const message = body.message.toString();
-      if (message && message.length < 34) {
+      if (message.length < 26) {
         obsService.hint = message;
         io.emit("director hint", { message });
         return res.send({ status: "ok" });
       }
-      return res.send({status: "error", description: "Сообщение слишком длинное (больше 33 символов)."})
+      return res.send({status: "error", description: "Сообщение слишком длинное (больше 26 символов)."})
     } catch(e) {
       return res.send({status: "error", description: "Сообщение нельзя преобразовать к тексту."});
     }

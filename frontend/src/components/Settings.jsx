@@ -17,7 +17,7 @@ export const Settings = () => {
     dispatch({ type: types.ShowAppLoading });
 
     axios
-      .post("http://localhost:4000/reconnect", data)
+      .post("/reconnect", data)
       .then((res) => {
         if (res.data.status === "error") {
           dispatch({ type: types.ShowError, payload: res.data.description });
