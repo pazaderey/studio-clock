@@ -4,7 +4,7 @@ services:
     container_name: clock_front
     build: ./frontend
     ports:
-      - "3000:${FRONTEND_PORT}"
+      - "443:${FRONTEND_PORT}"
     depends_on:
       - backend
   backend:
@@ -12,9 +12,3 @@ services:
     build: ./new_backend
     ports:
       - "4000:${BACKEND_PORT}"
-  nginx:
-    build: ./nginx
-    ports: 
-      - "80:80"
-    depends_on:
-      - frontend

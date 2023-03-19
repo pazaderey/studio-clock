@@ -21,6 +21,7 @@ export const WebSocketProvider = ({ children }) => {
         type: types.SetSocket,
         payload: socket.connected,
       });
+      dispatch({ type: types.HideError });
       dispatch({ type: types.HideAppLoading });
     });
 
