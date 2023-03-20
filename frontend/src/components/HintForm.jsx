@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { types } from "../redux/types";
 
-export function HintForm({ send }) {
+export function HintForm() {
+  const dispatch = useDispatch();
   const [hint, setHint] = useState("");
   const [error, setError] = useState("");
 
@@ -15,7 +18,7 @@ export function HintForm({ send }) {
         } else {
           setHint("");
           setError("");
-          send();
+          dispatch({ type: types.HideModal });
         }
       });
   }

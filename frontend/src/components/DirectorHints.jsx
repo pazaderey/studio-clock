@@ -2,10 +2,13 @@ import React, { useState, useContext, useEffect } from "react";
 import { WebSocketContext } from "./WebSocket";
 import { HintForm } from "./HintForm";
 import { HintModal } from "./HintModal";
+import { useDispatch, useSelector } from "react-redux";
+import { types } from "../redux/types";
 
 export function DirectorHints() {
+  const dispatch = useDispatch();
+  const modal = useSelector((state) => state.modal);
   const [hint, setHint] = useState("Подсказка");
-  const [modal, setModal] = useState(false);
   const { socket } = useContext(WebSocketContext);
 
   useEffect(() => {
@@ -18,10 +21,14 @@ export function DirectorHints() {
     return () => socket.off("director hint");
   });
 
+  function clickModal() {
+    dispatch({ type: types.ShowModal });
+  }
+
   return (
     <div className="block-director-hint">
-      <HintModal visible={modal} setVisible={setModal}><HintForm send={() => setModal(false)}/></HintModal>
-      <button className="hint-btn" onClick={() => setModal(true)}>Изменить</button>
+      <HintModal visible={modal}><HintForm /></HintModal>
+      <button className="hint-btn" onClick={clickModal}>Изменить</button>
       <p className="hint">{hint}</p>
     </div>
   );
