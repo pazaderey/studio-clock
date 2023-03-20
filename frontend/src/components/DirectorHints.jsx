@@ -18,13 +18,9 @@ export function DirectorHints() {
     return () => socket.off("director hint");
   });
 
-  const sendHint = () => {
-    setModal(false);
-  };
-
   return (
     <div className="block-director-hint">
-      <HintModal visible={modal} setVisible={setModal}><HintForm send={sendHint}/></HintModal>
+      <HintModal visible={modal} setVisible={setModal}><HintForm send={() => setModal(false)}/></HintModal>
       <button className="hint-btn" onClick={() => setModal(true)}>Изменить</button>
       <p className="hint">{hint}</p>
     </div>
