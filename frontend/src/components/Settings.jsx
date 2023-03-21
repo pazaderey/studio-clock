@@ -93,6 +93,7 @@ export const Settings = () => {
           Password OBS
         </label>
         <input
+          type="password"
           {...register("password")}
           onKeyPress={(e) => handleKeypress(e)}
           defaultValue=""
