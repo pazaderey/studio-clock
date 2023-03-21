@@ -29,9 +29,8 @@
 | NODE_ENV | Окружение для логгирования (`production` или  `development`) | `undefined` |
 
 Если у вашего сервера есть домен, то:
-1. В файле `frontend/src/components/WebSocket.jsx` на 17 строке поменять строку `http://localhost:4000` на `https://{Ваш домен}`.
-2. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`.
-3. Задать переменную среды `FRONTEND_URL=https://{Ваш домен}`
+1. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`.
+2. Задать переменную среды `FRONTEND_URL=https://{Ваш домен}`
 
 ## Запуск через Docker
 
@@ -53,10 +52,17 @@ docker-compose up -d
 1. `cd ./new_backend`
 2. `npm ci`
 
+В файле `./frontend/src.components/Websocket.jsx` заменить в 17 строке:
+```js
+    socket = io(`http://localhost:${BACKEND_PORT}`);
+```
+
 В файле `./frontend/package.json` заменить 46 строку на:
 ```json
-  "proxy": "http://localhost:4000"
+  "proxy": "http://localhost:${BACKEND_PORT}"
 ```
+
+На место `BACKEND_PORT` необходимо вручную записать значение из соответствующей переменной окружения.
 
 ### Запуск
 
