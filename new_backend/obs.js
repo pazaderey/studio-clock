@@ -106,23 +106,22 @@ export class OBSService {
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
           io.emit("obs state", { type: 'record', event: 'start', stream: this.stream });
-          debugOBSEvent("my response", { type: 'record', event: 'start', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_STOPPED":
           io.emit("obs state", { type: 'record', event: 'stop', stream: this.stream });
-          debugOBSEvent("my response", { type: 'record', event: 'stop', stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_PAUSED":
           io.emit("obs state", { type: 'record', event: 'paused', stream: this.stream });
-          debugOBSEvent("my response", { type: 'record', event: 'stop', stream: this.stream });
       }
     });
 
     this.obs.on("MediaInputPlaybackStarted", (args) => {
+      debugOBSEvent("media response", { type: "media", event: "start", sourceName: args.inputName });
       io.emit("media response", { type: "media", event: "start", sourceName: args.inputName });
     });
 
     this.obs.on("MediaInputPlaybackEnded", (args) => {
+      debugOBSEvent("media response", { type: "media", event: "stop" });
       io.emit("media response", { type: "media", event: "stop" });
     });
 
@@ -130,6 +129,7 @@ export class OBSService {
       this.stream = false;
       switch (args.mediaAction) {
         case "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PAUSE":
+          debugOBSEvent("media response", { type: "media", event: "paused" });
           io.emit("media response", { type: "media", event: "paused" });
           break;
       }

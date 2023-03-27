@@ -13,6 +13,9 @@ export function AudioState() {
   useEffect(() => {
     socket.on("input list", ({ inputs }) => {
       setInputList(inputs.map(i => i.inputName));
+      if (inputList.length > 0 && !source) {
+        setSource(inputList[0]);
+      }
     });
 
     return () => socket.off("input list");

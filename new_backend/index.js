@@ -149,6 +149,13 @@ function startServer(obsService) {
         time,
         duration
       });
+      debugEvent("media response", {
+        type: 'media',
+        event: 'connect',
+        state: mediaStatus.mediaState,
+        time,
+        duration
+      });
     }
   });
 

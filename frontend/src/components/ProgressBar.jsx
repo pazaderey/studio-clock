@@ -1,6 +1,6 @@
 import React from "react";
 
-function ProgressBar({ completed }) {
+export function ProgressBar({ completed }) {
   const fillerWidth = {
     width: `${completed}%`,
   }
@@ -10,5 +10,3 @@ function ProgressBar({ completed }) {
     </div>
   );
 }
-
-export default ProgressBar;
