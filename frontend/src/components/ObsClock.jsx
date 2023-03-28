@@ -56,6 +56,7 @@ export const ObsClock = () => {
           break;
 
         case "stream":
+          setEventName("эфира");
           if (data.event === "start") {
             setTime(0);
             setCont(false);

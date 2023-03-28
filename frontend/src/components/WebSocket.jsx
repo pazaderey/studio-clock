@@ -49,7 +49,7 @@ export const WebSocketProvider = ({ children }) => {
     });
 
     valueContext = {
-      socket: socket,
+      socket,
     };
   }
 

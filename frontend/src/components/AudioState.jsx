@@ -7,7 +7,6 @@ export function AudioState() {
   const [state, setState] = useState(audio);
   const [inputList, setInputList] = useState([]);
   const [source, setSource] = useState("");
-  const [selectValue, setSelectValue] = useState("")
 
   const { socket } = useContext(WebSocketContext);
 
@@ -19,7 +18,6 @@ export function AudioState() {
     socket.on("audio change", (data) => {
       setSource(data.input);
       setState(data.inputMuted ? noAudio : audio);
-      setSelectValue(data.input);
     });
 
     socket.on("audio state", (data) => {
@@ -42,7 +40,7 @@ export function AudioState() {
   return (
     <div className="block-audio-state">
       <img src={state} alt="Audio Input State"/>
-      <select onChange={(e) => changeSource(e.target.value)} value={selectValue}>
+      <select onChange={(e) => changeSource(e.target.value)} value={source}>
         <option value="" disabled hidden>OBS Audio source</option>
         {inputList.map((i, ind) => <option value={i} key={ind+1}>{i}</option>)}
       </select>

@@ -48,7 +48,7 @@ function startServer(obsService) {
   app.post("/message", async ({ body }, res) => {
     logger.debug(`Got message with body ${JSON.stringify(body)}`);
     try {
-      const message = body.message.toString();
+      const message = body.toString();
       if (message.length < 26) {
         obsService.hint = message;
         io.emit("director hint", { message });

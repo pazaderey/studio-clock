@@ -45,8 +45,8 @@ export class OBSService {
   }
 
   _tryReconnect() {
-    setTimeout(() => this.connect(), 10000);
     logger.info(`Try reconnecting to ${this.config.ip}`);
+    setTimeout(async () => await this.connect(), 10000);
   }
 
   async getRecordStatus() {

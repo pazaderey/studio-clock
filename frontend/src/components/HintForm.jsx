@@ -11,7 +11,7 @@ export function HintForm() {
   function sendHint(event) {
     event.preventDefault();
     axios
-      .post("/message", { message: hint })
+      .post("/message", hint)
       .then((res) => {
         if (res.data.status === "error") {
           setError(res.data.description);
