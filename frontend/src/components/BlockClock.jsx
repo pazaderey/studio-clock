@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState, useCallback, useContext, useEffect } from "react";
 import { useFormat } from "../hooks/customHooks";
 import { WebSocketContext } from "./WebSocket";
@@ -14,9 +15,8 @@ export const BlockClock = () => {
   const [timerBlock, setTimerBlock] = useState(null);
 
   useEffect(() => {
-    socket.on("block status", (data) => {
-      setTime(data.time);
-      switch (data.state) {
+    socket.on("block change", (data) => {
+      switch (data.event) {
         case "start":
           if (!timerBlock) {
             setStartBlock("start");
@@ -30,7 +30,8 @@ export const BlockClock = () => {
           setStartBlock("stop");
       }
     });
-    return () => socket.off("block status");
+
+    return () => socket.off("block change");
   }, []);
 
   const tick = useCallback(() => {
@@ -42,7 +43,7 @@ export const BlockClock = () => {
   }, [setTimerBlock, setTime, time]);
 
   function clickTimer(event) {
-    socket.emit("block changed", { state: event, time });
+    axios.post(`/block/${event}`);
   }
 
   useEffect(() => {
@@ -52,7 +53,7 @@ export const BlockClock = () => {
         break;
       default:
         clearInterval(timerBlock);
-        break
+        break;
     }
   }, [startBlock]);
 

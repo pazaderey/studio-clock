@@ -12,6 +12,7 @@ export const ObsClock = () => {
   const [cont, setCont] = useState(false);
   const [timer, setTimer] = useState(null);
   const [time, setTime] = useState(0);
+  const [eventName, setEventName] = useState("записи/эфира");
 
   const continueTime = (cont, strTime) => {
     let sec = 0;
@@ -29,14 +30,17 @@ export const ObsClock = () => {
       switch (data.type) {
         case "connect":
           if (data.stream) {
+            setEventName("эфира");
             continueTime(true, data.streamTime.split(":"));
           } else if (data.recording) {
+            setEventName("записи");
             continueTime(!data.recordPause, data.recordTime.split(":"));
           } else break;
           break;
 
         case "record":
           if (data.event === "start" && !data.stream) {
+            setEventName("записи");
             setStart(true);
           } else if (data.event === "paused") {
             setStart(false);
@@ -72,7 +76,7 @@ export const ObsClock = () => {
       }
     });
 
-    return () => socket.off("my response");
+    return () => socket.off("obs state");
   }, []);
 
   const format = useFormat(time);
@@ -80,25 +84,22 @@ export const ObsClock = () => {
   useEffect(() => {
     if (start) {
       !cont && setTime(0);
-      tick(setTimer, setTime);
+      tick();
     }
     !start && clearInterval(timer);
   }, [start]);
 
-  const tick = useCallback(
-    (setTimerCall, setTimeCall) => {
-      setTimerCall(
+  const tick = useCallback(() => {
+      setTimer(
         setInterval(() => {
-          setTimeCall((prevTime) => prevTime + 1);
+          setTime((prevTime) => prevTime + 1);
         }, 1000)
       );
-    },
-    [setTimer, setTime, time]
-  );
+    }, [setTimer, setTime]);
 
   return (
     <div className={"streaming-container only-stream"}>
-      <p className="description">С начала записи/эфира:</p>
+      <p className="description">С начала {eventName}:</p>
       <p className={"timer " + (start ? "playing-stream" : "")}>
         {format(time)}
       </p>

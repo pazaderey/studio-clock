@@ -7,41 +7,43 @@ export function AudioState() {
   const [state, setState] = useState(audio);
   const [inputList, setInputList] = useState([]);
   const [source, setSource] = useState("");
+  const [selectValue, setSelectValue] = useState("")
 
   const { socket } = useContext(WebSocketContext);
 
   useEffect(() => {
     socket.on("input list", ({ inputs }) => {
       setInputList(inputs.map(i => i.inputName));
-      if (inputList.length > 0 && !source) {
-        setSource(inputList[0]);
-      }
     });
 
-    return () => socket.off("input list");
-  });
+    socket.on("audio change", (data) => {
+      setSource(data.input);
+      setState(data.inputMuted ? noAudio : audio);
+      setSelectValue(data.input);
+    });
 
-  useEffect(() => {
     socket.on("audio state", (data) => {
       if (data.input === source) {
-        data.state ? setState(audio) : setState(noAudio);
+        setState(data.inputMuted ? noAudio : audio);
       }
     });
 
-    return () => socket.off("audio state");
-  }, [source]);
+    return () => {
+      socket.off("input list");
+      socket.off("audio change");
+      socket.off("audio state");
+    };
+  });
 
   function changeSource(selectedSource) {
-    socket.off("audio state");
-    setSource(selectedSource);
-    socket.emit("check input", selectedSource);
+    socket.emit("audio change", selectedSource);
   }
 
   return (
     <div className="block-audio-state">
       <img src={state} alt="Audio Input State"/>
-      <select onChange={(e) => changeSource(e.target.value)}>
-        <option value="" disabled>OBS Audio source</option>
+      <select onChange={(e) => changeSource(e.target.value)} value={selectValue}>
+        <option value="" disabled hidden>OBS Audio source</option>
         {inputList.map((i, ind) => <option value={i} key={ind+1}>{i}</option>)}
       </select>
     </div>

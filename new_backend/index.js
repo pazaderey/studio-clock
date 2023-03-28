@@ -33,16 +33,16 @@ function startServer(obsService) {
   logger.debug("Started IO");
   obsService.registerEvents(io);
 
-  app.post("/reconnect", async (req, res) => {
-    logger.debug(`Got reconnect with body: ${JSON.stringify(req.body)}`);
+  app.post("/reconnect", async ({ body }, res) => {
+    logger.debug(`Got reconnect with body: ${JSON.stringify(body)}`);
 
-    await obsService.connect(req.body);
+    await obsService.connect(...Object.values(body));
     if (obsService.connected) {
       io.emit("my response", { type: "connect" });
       return res.send({ status: "ok" });
     }
     io.emit("obs_failed", { type: 'connect', error: true });
-    return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
+    return res.status(400).send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
   });
 
   app.post("/message", async ({ body }, res) => {
@@ -54,9 +54,20 @@ function startServer(obsService) {
         io.emit("director hint", { message });
         return res.send({ status: "ok" });
       }
-      return res.send({status: "error", description: "Сообщение слишком длинное (больше 26 символов)."})
-    } catch(e) {
-      return res.send({status: "error", description: "Сообщение нельзя преобразовать к тексту."});
+      return res.status(400).send({ status: "error", description: "Сообщение слишком длинное (больше 26 символов)." });
+    } catch (e) {
+      return res.status(400).send({ status: "error", description: "Сообщение нельзя преобразовать к тексту." });
+    }
+  });
+
+  app.post("/block/:event", (req, res) => {
+    const event = req.params.event;
+    logger.debug(`Got block with ${event}`);
+    if (["start", "pause", "stop"].includes(event)) {
+      io.emit("block change", { event });
+      res.send({ status: "ok" });
+    } else {
+      return res.status(400).send({ status: "error", description: "Такого события нет, вот список доступных: start, pause, stop" });
     }
   });
 
@@ -64,7 +75,6 @@ function startServer(obsService) {
     logger.info("Connected to front");
     if (!obsService.connected) {
       socket.emit("obs_failed", { type: 'connect', error: true });
-      debugEvent("obs_failed", { type: 'connect', error: true });
       return;
     }
     let streamTime = "";
@@ -80,27 +90,18 @@ function startServer(obsService) {
         sourceName: data
       };
       socket.emit("media response", eventData);
-      debugEvent("media response", eventData);
     });
 
     socket.on("input list", async () => {
       const { inputs } = await obsService.getInputList();
       socket.emit("input list", { inputs });
-      debugEvent("input list", inputs);
     });
 
-    socket.on('check input', async (data) => {
+    socket.on("audio change", async (data) => {
       const { inputMuted } = await obsService.getInputMute(data);
-      const eventData = { input: data, state: !inputMuted }
-      socket.emit("audio state", eventData);
-      debugEvent("audio state", eventData);
+      const eventData = { input: data, inputMuted }
+      io.emit("audio change", eventData);
     });
-
-    socket.on("block changed", (data) => {
-      obsService.block = { ...data };
-      io.emit("block status", data);
-      debugEvent("block status", );
-    });  
 
     const streamStatus = await obsService.getStreamStatus();
     const recordStatus = await obsService.getRecordStatus();
@@ -122,10 +123,8 @@ function startServer(obsService) {
     });
 
     socket.emit("director hint", { message: obsService.hint });
-    socket.emit("block status", { ...obsService.block });
-    debugEvent("block status", { ...obsService.block });
 
-    const { inputs } = await obsService.getInputList();
+    const inputs = await obsService.getInputList();
     socket.emit("input list", { inputs });
     if (inputs?.length) {
       let mediaInput;
@@ -170,11 +169,11 @@ function startServer(obsService) {
   let obsConfig;
   try {
     obsConfig = JSON.parse(readFileSync("config.json")).obs;
-  } catch(e) {
-    obsConfig = { ip: "", port: 0 };
+  } catch (e) {
+    obsConfig = { ip: "", port: 0, password: "" };
   }
   const obsService = new OBSService();
-  await obsService.connect(obsConfig);
+  await obsService.connect(...Object.values(obsConfig));
   startServer(obsService);
-})().catch(e => logger.error(e));
+})().catch(e => console.log(e));
 

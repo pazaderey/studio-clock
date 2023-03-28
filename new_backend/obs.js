@@ -12,26 +12,27 @@ export class OBSService {
   constructor() {
     this.obs = new OBSWebSocket();
     this.connected = false;
+    this.config = { ip: "", port: 0, password: "" };
+    this.inputs = [];
     this.stream = false;
-    this.block = { state: "stop", time: 0 };
     this.hint = "";
   }
 
   /**
-   * @param {{
-  *   ip: string
-  *   port: number
-  *   password?: string
-  * }} config 
-  */
-  async connect(config) {
+   * @param {string | undefined} ip 
+   * @param {number | undefined} port 
+   * @param {string | undefined} password 
+   */
+  async connect(ip = this.config.ip, port = this.config.port, password = this.config.password) {
     await this.disconnect();
     try {
-      await this.obs.connect(`ws://${config.ip}:${config.port}`, config.password);
+      await this.obs.connect(`ws://${ip}:${port}`, password);
       this.connected = true;
+      [ this.config.ip, this.config.port, this.config.password ] = [ ip, port, password ];
       logger.info("Connected to new OBS");
+      this.getInputList();
     } catch(e) {
-      console.log(e);
+      logger.error(`Connection failed to ${this.config.ip}`);
     }
   }
 
@@ -41,6 +42,11 @@ export class OBSService {
       this.connected = false;
     }
     logger.info("Disconnected from OBS");
+  }
+
+  _tryReconnect() {
+    setTimeout(() => this.connect(), 10000);
+    logger.info(`Try reconnecting to ${this.config.ip}`);
   }
 
   async getRecordStatus() {
@@ -57,15 +63,15 @@ export class OBSService {
 
   /**
    * @returns {Promise<{
-   *   inputs: {
    *     inputKind: string
    *     inputName: string
    *     unversionedInputKind: string
-   *   }[]
-   * }>}
+   *   }[]>}
    */
   async getInputList() {
-    return this.obs.call("GetInputList");
+    const { inputs } = await this.obs.call("GetInputList");
+    this.inputs = inputs;
+    return inputs;
   }
 
   async getInputMute(inputName) {
@@ -84,20 +90,19 @@ export class OBSService {
     this.obs.on("ConnectionClosed", (error) => {
       logger.info("OBS connection stopped");
       this.connected = false;
-      io.emit("obs_failed", { type: 'connect', error: true });
+      io.emit("obs_failed", { type: "connect", error: true });
+      this._tryReconnect();
     });
 
     this.obs.on("StreamStateChanged", (args) => {
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
           this.stream = true;
-          io.emit("obs state", { type: 'stream', event: 'start', stream: this.stream });
-          debugOBSEvent("my response", { type: 'stream', event: 'start', stream: this.stream });
+          io.emit("obs state", { type: "stream", event: "start", stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_STOPPED":
           this.stream = false;
-          io.emit("obs state", { type: 'stream', event: 'stop', stream: this.stream });
-          debugOBSEvent("my response", { type: 'stream', event: 'stop', stream: this.stream });
+          io.emit("obs state", { type: "stream", event: "stop", stream: this.stream });
           break;
       }
     });
@@ -105,24 +110,28 @@ export class OBSService {
     this.obs.on("RecordStateChanged", (args) => {
       switch (args.outputState) {
         case "OBS_WEBSOCKET_OUTPUT_STARTED":
-          io.emit("obs state", { type: 'record', event: 'start', stream: this.stream });
+          io.emit("obs state", { type: "record", event: "start", stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_STOPPED":
-          io.emit("obs state", { type: 'record', event: 'stop', stream: this.stream });
+          io.emit("obs state", { type: "record", event: "stop", stream: this.stream });
           break;
         case "OBS_WEBSOCKET_OUTPUT_PAUSED":
-          io.emit("obs state", { type: 'record', event: 'paused', stream: this.stream });
+          io.emit("obs state", { type: "record", event: "paused", stream: this.stream });
       }
     });
 
     this.obs.on("MediaInputPlaybackStarted", (args) => {
-      debugOBSEvent("media response", { type: "media", event: "start", sourceName: args.inputName });
+      const kind = this.inputs.find(i => i.inputName === args.inputName).inputKind;
+      if (["gstreamer-source", "ndi_source"].includes(kind)) {
+        return;
+      }
       io.emit("media response", { type: "media", event: "start", sourceName: args.inputName });
+      debugOBSEvent("media response", { type: "media", event: "start", sourceName: args.inputName });
     });
 
     this.obs.on("MediaInputPlaybackEnded", (args) => {
-      debugOBSEvent("media response", { type: "media", event: "stop" });
       io.emit("media response", { type: "media", event: "stop" });
+      debugOBSEvent("media response", { type: "media", event: "stop" });
     });
 
     this.obs.on("MediaInputActionTriggered", (args) => {
@@ -136,16 +145,16 @@ export class OBSService {
     });
 
     this.obs.on("InputMuteStateChanged", (args) => {
-      io.emit("audio state", { input: args.inputName, state: !args.inputMuted});
+      io.emit("audio state", { input: args.inputName, inputMuted: args.inputMuted});
     });
 
     this.obs.on("InputCreated", async () => {
-      const { inputs } = await this.getInputList();
+      const inputs = await this.getInputList();
       io.emit("input list", { inputs });
     });
 
     this.obs.on("InputRemoved", async () => {
-      const { inputs } = await this.getInputList();
+      const inputs = await this.getInputList();
       io.emit("input list", { inputs });
     });
   }
