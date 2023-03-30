@@ -8,6 +8,13 @@ function debugOBSEvent(name, data) {
   logger.debug(`Event "${name}" with data: ${JSON.stringify(data)}`);
 }
 
+const OBS_EVENTS = {
+  "OBS_WEBSOCKET_OUTPUT_STARTED": "start",
+  "OBS_WEBSOCKET_OUTPUT_STOPPED": "stop",
+  "OBS_WEBSOCKET_OUTPUT_PAUSED": "pause",
+  "OBS_WEBSOCKET_OUTPUT_RESUMED": "resume"
+}
+
 export class OBSService {
   constructor() {
     this.obs = new OBSWebSocket();
@@ -15,6 +22,8 @@ export class OBSService {
     this.config = { ip: "", port: 0, password: "" };
     this.inputs = [];
     this.stream = false;
+    this.record = false;
+    this.priority = "auto";
     this.hint = "";
   }
 
@@ -95,28 +104,34 @@ export class OBSService {
     });
 
     this.obs.on("StreamStateChanged", (args) => {
-      switch (args.outputState) {
-        case "OBS_WEBSOCKET_OUTPUT_STARTED":
-          this.stream = true;
-          io.emit("obs state", { type: "stream", event: "start", stream: this.stream });
-          break;
-        case "OBS_WEBSOCKET_OUTPUT_STOPPED":
-          this.stream = false;
-          io.emit("obs state", { type: "stream", event: "stop", stream: this.stream });
-          break;
+      if (!Object.keys(OBS_EVENTS).includes(args.outputState)) {
+        return;
+      }
+      this.stream = args.outputActive;
+      if (!this.record) {
+        io.emit("obs state", { type: "stream", event: OBS_EVENTS[args.outputState] });
+        return;
+      }
+      if (this.priority === "stream") {
+        io.emit("obs state", { type: "stream", event: "stop" });
+        io.emit("obs state", { type: "stream", event: OBS_EVENTS[args.outputState] });
+        return;
       }
     });
 
     this.obs.on("RecordStateChanged", (args) => {
-      switch (args.outputState) {
-        case "OBS_WEBSOCKET_OUTPUT_STARTED":
-          io.emit("obs state", { type: "record", event: "start", stream: this.stream });
-          break;
-        case "OBS_WEBSOCKET_OUTPUT_STOPPED":
-          io.emit("obs state", { type: "record", event: "stop", stream: this.stream });
-          break;
-        case "OBS_WEBSOCKET_OUTPUT_PAUSED":
-          io.emit("obs state", { type: "record", event: "paused", stream: this.stream });
+      if (!Object.keys(OBS_EVENTS).includes(args.outputState)) {
+        return;
+      }
+      this.record = args.outputActive;
+      if (!this.stream) {
+        io.emit("obs state", { type: "record", event: OBS_EVENTS[args.outputState] });
+        return;
+      }
+      if (this.priority === "record") {
+        io.emit("obs state", { type: "record", event: "stop" });
+        io.emit("obs state", { type: "record", event: OBS_EVENTS[args.outputState] });
+        return;
       }
     });
 

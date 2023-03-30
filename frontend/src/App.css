@@ -23,11 +23,13 @@ section p {
 p.description {
   font-size: 3rem;
   font-weight: bold;
+  height: 25%;
 }
 
 p.timer {
   font-size: 9rem;
   font-weight: 400;
+  height: 75%;
 }
 
 p.hint {
@@ -62,7 +64,6 @@ p.hint {
   position: relative;
 }
 
-.streaming-container,
 .block-container {
   width: 50%;
   height: 100%;
@@ -72,8 +73,45 @@ p.hint {
   justify-content: center;
 }
 
+.streaming-container {
+  width: 50%;
+  height: 100%;
+  border-right: 2px solid #000;
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: space-between;
+}
+
 .streaming-container p.playing-stream {
   color: red;
+}
+
+.obs-clock-clock {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  width: calc(100% - 80px);
+}
+
+.obs-clock-clock > p.timer {
+  height: 68%;
+}
+
+.obs-clock-icons {
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+}
+
+.obs-icon {
+  width: 80px;
+  height: auto;
+}
+
+img.priority {
+  border: 2px #000 solid;
 }
 
 .block-buttons {
@@ -118,10 +156,15 @@ p.hint {
 }
 
 .media-clock {
+  height: 100%;
   width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.media-clock > p.timer {
+  height: 68%;
 }
 
 .settings .settings-block {
@@ -185,7 +228,7 @@ p.hint {
 }
 
 .progress-bar-container {
-  height: 20px;
+  height: 7%;
   width: 100%;
   background: red;
 }
@@ -264,19 +307,18 @@ section.director-hints {
   height: 150px;
 }
 
-@media screen and (not ((not (max-width: 1150px)) and (not (max-height: 800px)))) {
+@media screen and (not ((not (max-width: 1208px)) and (not (max-height: 800px)))) {
   p.description {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: bold;
   }
   
   p.timer {
-    font-size: 8.5rem;
+    font-size: 8rem;
     font-weight: 400;
   }
 
   .progress-bar-container {
-    height: 15px;
     width: 100%;
     background: red;
   }

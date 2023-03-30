@@ -103,6 +103,11 @@ function startServer(obsService) {
       io.emit("audio change", eventData);
     });
 
+    socket.on("obs priority", (data) => {
+      obsService.priority = data.event;
+      io.emit("obs priority", data);
+    });
+
     const streamStatus = await obsService.getStreamStatus();
     const recordStatus = await obsService.getRecordStatus();
     if (streamStatus.outputActive) {
@@ -114,7 +119,8 @@ function startServer(obsService) {
     }
 
     socket.emit("obs state", {
-      type: 'connect',
+      type: "connect",
+      event: "connect",
       stream: streamStatus.outputActive,
       recording: recordStatus.outputActive,
       recordPause: recordStatus.outputPaused,
@@ -142,13 +148,6 @@ function startServer(obsService) {
       const duration = mediaStatus.mediaDuration;
       const time = mediaStatus.mediaCursor;
       socket.emit("media response", {
-        type: 'media',
-        event: 'connect',
-        state: mediaStatus.mediaState,
-        time,
-        duration
-      });
-      debugEvent("media response", {
         type: 'media',
         event: 'connect',
         state: mediaStatus.mediaState,
