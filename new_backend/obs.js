@@ -1,12 +1,6 @@
 import OBSWebSocket from "obs-websocket-js";
 import { Server } from "socket.io";
-import { getLogger } from "./logger.js";
-
-const logger = getLogger();
-
-function debugOBSEvent(name, data) {
-  logger.debug(`Event "${name}" with data: ${JSON.stringify(data)}`);
-}
+import { getLogger } from "./logger.js"; 
 
 const OBS_EVENTS = {
   "OBS_WEBSOCKET_OUTPUT_STARTED": "start",
@@ -14,6 +8,8 @@ const OBS_EVENTS = {
   "OBS_WEBSOCKET_OUTPUT_PAUSED": "pause",
   "OBS_WEBSOCKET_OUTPUT_RESUMED": "resume"
 }
+
+const logger = getLogger();
 
 export class OBSService {
   constructor() {
@@ -27,35 +23,30 @@ export class OBSService {
     this.hint = "";
   }
 
+  async _connect() {
+    try {
+      await this.obs.connect(`ws://${this.config.ip}:${this.config.port}`, this.config.password);
+      this.connected = true;
+      logger.info("Connected to new OBS");
+      this.getInputList();
+    } catch(e) {
+      logger.error(`Error connecting to ${this.config.ip}: ${e}`);
+    }
+  }
+
   /**
    * @param {string | undefined} ip 
    * @param {number | undefined} port 
    * @param {string | undefined} password 
    */
   async connect(ip = this.config.ip, port = this.config.port, password = this.config.password) {
-    await this.disconnect();
-    try {
-      await this.obs.connect(`ws://${ip}:${port}`, password);
-      this.connected = true;
-      [ this.config.ip, this.config.port, this.config.password ] = [ ip, port, password ];
-      logger.info("Connected to new OBS");
-      this.getInputList();
-    } catch(e) {
-      logger.error(`Connection failed to ${this.config.ip}`);
-    }
-  }
-
-  async disconnect() {
-    if (this.connected) {
-      await this.obs.disconnect();
-      this.connected = false;
-    }
-    logger.info("Disconnected from OBS");
+    [ this.config.ip, this.config.port, this.config.password ] = [ ip, port, password ];
+    await this._connect();
   }
 
   _tryReconnect() {
     logger.info(`Try reconnecting to ${this.config.ip}`);
-    setTimeout(async () => await this.connect(), 10000);
+    setTimeout(async () => await this._connect(), 10000);
   }
 
   async getRecordStatus() {
@@ -97,7 +88,7 @@ export class OBSService {
    */
   registerEvents(io) {
     this.obs.on("ConnectionClosed", (error) => {
-      logger.info("OBS connection stopped");
+      logger.debug("OBS connection closed");
       this.connected = false;
       io.emit("obs_failed", { type: "connect", error: true });
       this._tryReconnect();

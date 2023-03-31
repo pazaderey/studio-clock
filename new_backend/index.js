@@ -12,10 +12,6 @@ dotenv.config({ path: "../.env" });
 const env = process.env;
 const logger = getLogger();
 
-function debugEvent(name, data) {
-  logger.debug(`Emitted "${name}" with data: ${JSON.stringify(data)}`);
-}
-
 /**
  * @param {OBSService} obsService 
  */
@@ -38,7 +34,7 @@ function startServer(obsService) {
 
     await obsService.connect(...Object.values(body));
     if (obsService.connected) {
-      io.emit("my response", { type: "connect" });
+      io.emit("obs connected", { type: "connect" });
       return res.send({ status: "ok" });
     }
     io.emit("obs_failed", { type: 'connect', error: true });
@@ -48,7 +44,7 @@ function startServer(obsService) {
   app.post("/message", async ({ body }, res) => {
     logger.debug(`Got message with body ${JSON.stringify(body)}`);
     try {
-      const message = body.toString();
+      const message = body.message.toString();
       if (message.length < 26) {
         obsService.hint = message;
         io.emit("director hint", { message });
