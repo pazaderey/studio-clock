@@ -16,22 +16,12 @@ export class OBSService {
     this.obs = new OBSWebSocket();
     this.connected = false;
     this.config = { ip: "", port: 0, password: "" };
+    this._asker = null;
     this.inputs = [];
     this.stream = false;
     this.record = false;
     this.priority = "auto";
     this.hint = "";
-  }
-
-  async _connect() {
-    try {
-      await this.obs.connect(`ws://${this.config.ip}:${this.config.port}`, this.config.password);
-      this.connected = true;
-      logger.info("Connected to new OBS");
-      this.getInputList();
-    } catch(e) {
-      logger.error(`Error connecting to ${this.config.ip}: ${e}`);
-    }
   }
 
   /**
@@ -41,12 +31,21 @@ export class OBSService {
    */
   async connect(ip = this.config.ip, port = this.config.port, password = this.config.password) {
     [ this.config.ip, this.config.port, this.config.password ] = [ ip, port, password ];
-    await this._connect();
+    try {
+      await this.obs.connect(`ws://${this.config.ip}:${this.config.port}`, this.config.password);
+      this.connected = true;
+      clearInterval(this._asker);
+      logger.info("Connected to new OBS");
+      this.getInputList();
+    } catch(e) {
+      logger.error(`Error connecting to ${this.config.ip}: ${e}`);
+      this.connected = false;
+    }
   }
 
   _tryReconnect() {
     logger.info(`Try reconnecting to ${this.config.ip}`);
-    setTimeout(async () => await this._connect(), 10000);
+    this._asker = setInterval(async () => await this.connect(), 10000);
   }
 
   async getRecordStatus() {
@@ -87,11 +86,14 @@ export class OBSService {
    * @param {Server} io 
    */
   registerEvents(io) {
-    this.obs.on("ConnectionClosed", (error) => {
-      logger.debug("OBS connection closed");
-      this.connected = false;
-      io.emit("obs_failed", { type: "connect", error: true });
-      this._tryReconnect();
+    this.obs.on("ConnectionOpened", () => {
+      io.emit("obs connected");
+      this.obs.once("ConnectionClosed", (error) => {
+        logger.debug("OBS connection closed");
+        this.connected = false;
+        io.emit("obs_failed", { type: "connect", error: true });
+        this._tryReconnect();
+      });
     });
 
     this.obs.on("StreamStateChanged", (args) => {

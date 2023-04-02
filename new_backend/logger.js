@@ -20,7 +20,7 @@ const loggerLevels = {
 class Logger {
   /**
    * @param {{
-   *  level?: string
+   *  level?: "silent" | "error" | "info" | "debug"
    * }} options 
    */
   constructor(options) {

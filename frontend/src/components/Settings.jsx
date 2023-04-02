@@ -22,7 +22,6 @@ export const Settings = () => {
         if (res.data.status === "error") {
           dispatch({ type: types.ShowError, payload: res.data.description });
         } else {
-          window.location.reload(false);
           dispatch({ type: types.HideError });
         }
       })

@@ -26,12 +26,7 @@ export const WebSocketProvider = ({ children }) => {
     });
 
     socket.on("obs connected", () => {
-      dispatch({
-        type: types.SetSocket,
-        payload: socket.connected,
-      });
-      dispatch({ type: types.HideError });
-      dispatch({ type: types.HideAppLoading });
+      window.location.reload(false);
     });
 
     socket.on("obs_failed", () => {
