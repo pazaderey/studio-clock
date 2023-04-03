@@ -11,7 +11,7 @@ export const MainClock = ({ clockOnly }) => {
       setTime(getTime);
     }, 1000);
     return () => clearInterval(timer);
-  });
+  }, []);
 
   return (
     <div className={clockOnly ? "clock-only" : "main-clock"}>

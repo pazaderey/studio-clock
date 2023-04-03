@@ -88,6 +88,7 @@ export class OBSService {
   registerEvents(io) {
     this.obs.on("ConnectionOpened", () => {
       io.emit("obs connected");
+      clearInterval(this._asker);
       this.obs.once("ConnectionClosed", (error) => {
         logger.debug("OBS connection closed");
         this.connected = false;

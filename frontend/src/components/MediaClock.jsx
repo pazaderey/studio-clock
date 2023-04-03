@@ -39,7 +39,7 @@ export const MediaClock = () => {
           break;
 
         case "connect":
-          if (data.duration < 0 || data.time < 0) {
+          if (data.duration < 0 || (data.duration - data.time < 0)) {
             break;
           }
           setTime(data.duration - data.time);
