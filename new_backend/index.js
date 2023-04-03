@@ -6,11 +6,14 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import { OBSService } from "./obs.js";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import yaml from "js-yaml"
 
 dotenv.config({ path: "../.env" });
 
 const env = process.env;
 const logger = getLogger();
+const swaggerDocument = yaml.load(readFileSync("./api/openapi.yaml", "utf8"));
 
 /**
  * @param {OBSService} obsService 
@@ -28,6 +31,8 @@ function startServer(obsService) {
   });
   logger.debug("Started IO");
   obsService.registerEvents(io);
+
+  app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
   app.post("/reconnect", async ({ body }, res) => {
     logger.debug(`Got reconnect with body: ${JSON.stringify(body)}`);

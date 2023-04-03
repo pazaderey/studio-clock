@@ -150,6 +150,14 @@ img.priority {
 }
 
 .settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2%;
+}
+
+.settings-obs {
+  width: 100%;
   padding: 2rem;
   display: flex;
   justify-content: space-around;
@@ -168,26 +176,31 @@ img.priority {
   height: 68%;
 }
 
-.settings .settings-block {
+.settings-obs .settings-block {
   display: flex;
   flex-direction: column;
 }
 
-.settings .settings-block .form-label {
+.settings-obs .settings-block .form-label {
   font-size: 1.2rem;
 }
 
-.settings .settings-block .form-label span {
+.settings-obs .settings-block .form-label span {
   color: red;
   font-weight: bold;
 }
 
-.settings .settings-block.all-invalid-true {
+.settings-obs .settings-block.all-invalid-true {
   margin-bottom: 1.3rem;
 }
 
-.settings .settings-block .all-invalid-true {
+.settings-obs .settings-block .all-invalid-true {
   margin-bottom: 1.3rem;
+}
+
+.api-btn {
+  width: 10%;
+
 }
 
 .loader.large {
