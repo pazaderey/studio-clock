@@ -1,6 +1,6 @@
+import { getLogger } from "./logger.js"; 
 import OBSWebSocket from "obs-websocket-js";
 import { Server } from "socket.io";
-import { getLogger } from "./logger.js"; 
 
 const OBS_EVENTS = {
   "OBS_WEBSOCKET_OUTPUT_STARTED": "start",
@@ -83,6 +83,7 @@ export class OBSService {
   }
 
   /**
+   * Should be called once before the first connect!
    * @param {Server} io 
    */
   registerEvents(io) {

@@ -109,7 +109,7 @@ paths:
               ]
       responses:
         "200":
-          description: Timer started
+          description: Operation applied
           content:
             application/json:
               schema:

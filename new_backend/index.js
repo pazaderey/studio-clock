@@ -1,11 +1,11 @@
-import express from "express";
-import { readFileSync } from "fs";
 import cors from "cors";
-import { getLogger } from "./logger.js";
-import { Server } from "socket.io";
 import { createServer } from "http";
-import { OBSService } from "./obs.js";
 import dotenv from "dotenv";
+import express from "express";
+import { getLogger } from "./logger.js";
+import { OBSService } from "./obs.js";
+import { readFileSync } from "fs";
+import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import yaml from "js-yaml"
 
@@ -14,23 +14,23 @@ dotenv.config({ path: "../.env" });
 const env = process.env;
 const logger = getLogger();
 const swaggerDocument = yaml.load(readFileSync("./api/openapi.yaml", "utf8"));
+const obsConfig = JSON.parse(readFileSync("config.json")).obs;
+const FRONT_URL = env.FRONTEND_URL || "http://localhost";
+const FRONT_PORT = env.FRONTEND_PORT || 3000;
+const PORT = env.BACKEND_PORT || 4000;
 
-/**
- * @param {OBSService} obsService 
- */
-function startServer(obsService) {
+async function main() {
   const app = express();
   app.use(express.json());
   app.use(cors());
 
   const server = createServer(app);
-  const FRONT_URL = env.FRONTEND_URL || "http://localhost";
-  const FRONT_PORT = env.FRONTEND_PORT || 3000;
   const io = new Server(server, {
     cors: `${FRONT_URL}:${FRONT_PORT}`
   });
-  logger.debug("Started IO");
+  const obsService = new OBSService();
   obsService.registerEvents(io);
+  await obsService.connect(...Object.values(obsConfig));
 
   app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -158,22 +158,10 @@ function startServer(obsService) {
     }
   });
 
-  const PORT = env.BACKEND_PORT || 4000;
   server.listen(PORT, () => {
     logger.info(`Server started on port ${PORT}`);
     logger.debug("Logs containing Unicode characters may display incorrect");
   });
 }
 
-(async function main() {
-  let obsConfig;
-  try {
-    obsConfig = JSON.parse(readFileSync("config.json")).obs;
-  } catch (e) {
-    obsConfig = { ip: "", port: 0, password: "" };
-  }
-  const obsService = new OBSService();
-  await obsService.connect(...Object.values(obsConfig));
-  startServer(obsService);
-})().catch(e => console.log(e));
-
+main().catch(e => logger.error(e));
