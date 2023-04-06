@@ -28,19 +28,19 @@ class Logger {
   }
 
   debug(...args) {
-    if (this.level > 1) {
+    if (this.level >= loggerLevels.debug) {
       console.log(`${new Date().toLocaleTimeString()} DEBUG `, ...args);
     }
   }
 
   info(...args) {
-    if (this.level > 0) {
+    if (this.level >= loggerLevels.info) {
       console.log(`${new Date().toLocaleTimeString()} INFO  `, ...args);
     }
   }
 
   error(...args) {
-    if (this.level > -1) {
+    if (this.level >= loggerLevels.error) {
       console.log(`${new Date().toLocaleTimeString()} ERROR `, ...args);
     }
   }

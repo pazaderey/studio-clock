@@ -16,8 +16,8 @@ const logger = getLogger();
 const swaggerDocument = yaml.load(readFileSync("./api/openapi.yaml", "utf8"));
 const obsConfig = JSON.parse(readFileSync("config.json")).obs;
 const FRONT_URL = env.FRONTEND_URL || "http://localhost";
-const FRONT_PORT = env.FRONTEND_PORT || 3000;
-const PORT = env.BACKEND_PORT || 4000;
+const FRONT_PORT = 80;
+const BACK_PORT = 4000;
 
 async function main() {
   const app = express();
@@ -158,8 +158,8 @@ async function main() {
     }
   });
 
-  server.listen(PORT, () => {
-    logger.info(`Server started on port ${PORT}`);
+  server.listen(BACK_PORT, () => {
+    logger.info(`Server started on port ${BACK_PORT}`);
     logger.debug("Logs containing Unicode characters may display incorrect");
   });
 }

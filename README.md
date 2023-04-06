@@ -23,14 +23,12 @@
 
 | Имя | Описание | Значение по умолчанию |
 |---|---|---|
-| BACKEND_PORT | Порт backend сервера | `4000` |
-| FRONTEND_PORT | Порт frontend клиента | `3000` |
 | FRONTEND_URL | Адрес frontend клиента | `http://localhost` |
 | NODE_ENV | Окружение для логгирования (`production` или  `development`) | `undefined` |
 
 Если у вашего сервера есть домен, то:
-1. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`.
-2. Задать переменную среды `FRONTEND_URL=https://{Ваш домен}`
+1. Задать переменную среды `FRONTEND_URL=https://{Ваш домен}`.
+1. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`;
 
 ## Запуск через Docker
 
@@ -54,15 +52,13 @@ docker-compose up -d
 
 В файле `./frontend/src.components/Websocket.jsx` заменить в 17 строке:
 ```js
-    socket = io(`http://localhost:${BACKEND_PORT}`);
+    socket = io(`http://localhost:4000`);
 ```
 
 В файле `./frontend/package.json` заменить 46 строку на:
 ```json
-  "proxy": "http://localhost:${BACKEND_PORT}"
+  "proxy": "http://localhost:4000"
 ```
-
-На место `BACKEND_PORT` необходимо вручную записать значение из соответствующей переменной окружения.
 
 ### Запуск
 
