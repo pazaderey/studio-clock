@@ -28,8 +28,7 @@ async function main() {
   const io = new Server(server, {
     cors: `${FRONT_URL}:${FRONT_PORT}`
   });
-  const obsService = new OBSService();
-  obsService.registerEvents(io);
+  const obsService = new OBSService(io);
   await obsService.connect(...Object.values(obsConfig));
 
   app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));

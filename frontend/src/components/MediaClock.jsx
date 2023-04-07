@@ -58,6 +58,7 @@ export const MediaClock = () => {
   }, []);
 
   useEffect(() => {
+    console.log(start);
     start ? tick() : clearInterval(timer);
   }, [start]);
 
