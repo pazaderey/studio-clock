@@ -28,7 +28,7 @@ export function DirectorHints() {
   return (
     <div className="block-director-hint">
       <HintModal visible={modal}><HintForm /></HintModal>
-      <button className="hint-btn" onClick={clickModal}>Изменить</button>
+      <button className="btn btn-primary hint-btn" onClick={clickModal}>Изменить</button>
       <p className="hint">{hint}</p>
     </div>
   );

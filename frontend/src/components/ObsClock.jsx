@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useCallback, useContext } from "react";
 import { useFormat } from "../hooks/customHooks";
 import { WebSocketContext } from "./WebSocket";
-import stream from "../img/stream.png";
+import streaming from "../img/stream.png";
+import no_stream from "../img/no_stream.png";
 import recording from "../img/recording.png";
+import no_rec from "../img/no_rec.png";
 
 export const ObsClock = () => {
   const { socket } = useContext(WebSocketContext);
@@ -13,6 +15,8 @@ export const ObsClock = () => {
   const [time, setTime] = useState(0);
   const [desc, setDesc] = useState("записи/эфира");
   const [priority, setPriority] = useState("auto");
+  const [stream, setStream] = useState(no_stream);
+  const [rec, setRec] = useState(no_rec);
 
   const format = useFormat(time);
 
@@ -29,23 +33,29 @@ export const ObsClock = () => {
       switch (data.event) {
         case "connect":
           if (data.stream) {
+            setStream(streaming);
             continueTime(true, data.streamTime.split(':'));
           } else if (data.recording) {
+            setRec(recording);
             continueTime(!data.recordPause, data.recordTime.split(':'));
           }
           break;
         case "start":
+          data.type === "stream" ? setStream(streaming) : setRec(recording);
           setCont(false);
           setStart(true);
           break;
         case "stop":
+          data.type === "stream" ? setStream(no_stream) : setRec(no_rec);
           setCont(false);
           setStart(false);
           break;
         case "resume":
+          setRec(recording);
           continueTime(true, data.time['rec-timecode'].split(':'));
           break;
         case "pause":
+          setRec(no_rec);
           setStart(false);
           setCont(false);
           break;
@@ -107,7 +117,7 @@ export const ObsClock = () => {
           onClick={() => clickIcon("stream")}
         />
         <img
-          src={recording}
+          src={rec}
           className={`obs-icon ${priority === "record" ? "priority" : ""}`}
           alt="stream icon"
           onClick={() => clickIcon("record")}

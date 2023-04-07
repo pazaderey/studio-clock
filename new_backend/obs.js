@@ -28,21 +28,16 @@ export class OBSService {
     this.hint = "";
   }
 
-  /**
-   * @param {string | undefined} ip 
-   * @param {number | undefined} port 
-   * @param {string | undefined} password 
-   */
   async connect(ip = this.config.ip, port = this.config.port, password = this.config.password) {
-    [this.config.ip, this.config.port, this.config.password] = [ip, port, password];
+    Object.assign(this.config, { ip, port, password });
     try {
-      await this.obs.connect(`ws://${this.config.ip}:${this.config.port}`, this.config.password);
+      await this.obs.connect(`ws://${ip}:${port}`, password);
       this.connected = true;
       clearInterval(this._asker);
       logger.info("Connected to new OBS");
       this.getInputList();
     } catch (e) {
-      logger.error(`Error connecting to ${this.config.ip}: ${e}`);
+      logger.error(`Error connecting to ${ip}: ${e}`);
       this.connected = false;
     }
   }
