@@ -38,7 +38,6 @@ async function main() {
 
     await obsService.connect(...Object.values(body));
     if (obsService.connected) {
-      io.emit("obs connected", { type: "connect" });
       return res.send({ status: "ok" });
     }
     io.emit("obs_failed", { type: 'connect', error: true });
