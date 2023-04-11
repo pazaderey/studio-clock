@@ -17,21 +17,18 @@
     }
 }
 ```
-При желании в соответствующие поля можно записать данные для подключения к obs-websocket. Но это не обязательно, главное создать файл.
+При желании в соответствующие поля можно записать данные для подключения к obs-websocket.
 
-Переменные среды (также см. `.env.example`):
+## Переменные среды (также см. `.env.example`):
 
 | Имя | Описание | Значение по умолчанию |
 |---|---|---|
-| BACKEND_PORT | Порт backend сервера | `4000` |
-| FRONTEND_PORT | Порт frontend клиента | `3000` |
 | FRONTEND_URL | Адрес frontend клиента | `http://localhost` |
-
+| NODE_ENV | Окружение для логгирования (`production` или  `development`) | `undefined` |
 
 Если у вашего сервера есть домен, то:
-1. В файле `frontend/src/components/WebSocket.jsx` на 17 строке поменять строку `http://localhost:4000` на `https://{Ваш домен}`.
-2. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`.
-3. Задать переменную среды `FRONTEND_URL=https://{Ваш домен}`
+1. Задать переменную среды `FRONTEND_URL=https://{Ваш домен}`.
+1. В файле `frontend/nginx.conf` на 14 строке поменять `server_name clocks;` на `server_name {Ваш домен};`;
 
 ## Запуск через Docker
 
@@ -52,6 +49,16 @@ docker-compose up -d
 Из корневого пути:
 1. `cd ./new_backend`
 2. `npm ci`
+
+В файле `./frontend/src.components/Websocket.jsx` заменить в 17 строке:
+```js
+    socket = io(`http://localhost:4000`);
+```
+
+В файле `./frontend/package.json` заменить 46 строку на:
+```json
+  "proxy": "http://localhost:4000"
+```
 
 ### Запуск
 

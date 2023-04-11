@@ -17,13 +17,12 @@ export const Settings = () => {
     dispatch({ type: types.ShowAppLoading });
 
     axios
-      .post(`/reconnect`, data)
+      .post("/reconnect", data)
       .then((res) => {
         if (res.data.status === "error") {
           dispatch({ type: types.ShowError, payload: res.data.description });
         } else {
           window.location.reload(false);
-          dispatch({ type: types.HideError });
         }
       })
       .catch((err) =>
@@ -41,77 +40,88 @@ export const Settings = () => {
 
   return (
     <div className="settings">
-      <div className={`settings-block`}>
-        <label className="form-label" htmlFor="ip-input ">
-          IP-address OBS<span> *</span>
-        </label>
-        <input
-          {...register("ip", {
-            required: "Это поле обязательно для заполнения",
-          })}
-          defaultValue=""
-          name="ip"
-          className={
-            "form-control " +
-            (errors.ip
-              ? "is-invalid"
-              : `all-invalid-${!!Object.keys(errors).length}`)
-          }
-          id="ip-input"
-        />
-        {errors.ip && (
-          <span className="input-error text-danger">{errors.ip.message}</span>
-        )}
-      </div>
-      <div className={`settings-block`}>
-        <label className="form-label" htmlFor="port-input">
-          Port OBS<span> *</span>
-        </label>
-        <input
-          {...register("port", {
-            required: "Это поле обязательно для заполнения",
-          })}
-          onKeyPress={(e) => handleKeypress(e)}
-          defaultValue=""
-          name="port"
-          className={
-            "form-control " +
-            (errors.port
-              ? "is-invalid"
-              : `all-invalid-${!!Object.keys(errors).length}`)
-          }
-          id="port-input"
-        />
-        {errors.port && (
-          <span className="input-error text-danger">{errors.port.message}</span>
-        )}
-      </div>
-      <div
-        className={`settings-block all-invalid-${!!Object.keys(errors).length}`}
-      >
-        <label className="form-label" htmlFor="password-input">
-          Password OBS
-        </label>
-        <input
-          {...register("password")}
-          onKeyPress={(e) => handleKeypress(e)}
-          defaultValue=""
-          name="password"
-          className="form-control"
-          id="password-input"
-        />
-      </div>
-      <div
-        className={`settings-block all-invalid-${!!Object.keys(errors).length}`}
-      >
-        <button
-          className="btn btn-primary"
-          disabled={loading}
-          onClick={handleSubmit((data) => sendData(data))}
+      <div className="settings-obs">
+        <div className={`settings-block`}>
+          <label className="form-label" htmlFor="ip-input ">
+            IP-address OBS<span> *</span>
+          </label>
+          <input
+            {...register("ip", {
+              required: "Это поле обязательно для заполнения",
+            })}
+            defaultValue=""
+            name="ip"
+            className={
+              "form-control " +
+              (errors.ip
+                ? "is-invalid"
+                : `all-invalid-${!!Object.keys(errors).length}`)
+            }
+            id="ip-input"
+          />
+          {errors.ip && (
+            <span className="input-error text-danger">{errors.ip.message}</span>
+          )}
+        </div>
+        <div className={`settings-block`}>
+          <label className="form-label" htmlFor="port-input">
+            Port OBS<span> *</span>
+          </label>
+          <input
+            {...register("port", {
+              required: "Это поле обязательно для заполнения",
+            })}
+            onKeyPress={(e) => handleKeypress(e)}
+            defaultValue=""
+            name="port"
+            className={
+              "form-control " +
+              (errors.port
+                ? "is-invalid"
+                : `all-invalid-${!!Object.keys(errors).length}`)
+            }
+            id="port-input"
+          />
+          {errors.port && (
+            <span className="input-error text-danger">
+              {errors.port.message}
+            </span>
+          )}
+        </div>
+        <div
+          className={`settings-block all-invalid-${!!Object.keys(errors)
+            .length}`}
         >
-          Send
-        </button>
+          <label className="form-label" htmlFor="password-input">
+            Password OBS
+          </label>
+          <input
+            type="password"
+            {...register("password")}
+            onKeyPress={(e) => handleKeypress(e)}
+            defaultValue=""
+            name="password"
+            className="form-control"
+            id="password-input"
+          />
+        </div>
+        <div
+          className={`settings-block all-invalid-${!!Object.keys(errors)
+            .length}`}
+        >
+          <button
+            className="btn btn-primary"
+            disabled={loading}
+            onClick={handleSubmit((data) => sendData(data))}
+          >
+            Send
+          </button>
+        </div>
       </div>
+
+      <button className="btn btn-primary api-btn" onClick={() => window.location.href="/api"}>
+        View API
+      </button>
     </div>
   );
 };

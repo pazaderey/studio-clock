@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm ci && npm prune --production
+RUN npm install
 
-CMD ["npm", "start"]
+EXPOSE 4000
+
+CMD [ "npm", "start" ]

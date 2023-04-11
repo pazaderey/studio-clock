@@ -1,14 +1,38 @@
-import React, { useState, useCallback } from "react";
+import axios from "axios";
+import React, { useState, useCallback, useContext, useEffect } from "react";
 import { useFormat } from "../hooks/customHooks";
+import { WebSocketContext } from "./WebSocket";
 import pause from "../img/pause.png";
 import play from "../img/play.png";
 import restart from "../img/restart.png";
 
 export const BlockClock = () => {
   const format = useFormat();
+  const { socket } = useContext(WebSocketContext);
 
+  const [startBlock, setStartBlock] = useState("stop");
   const [time, setTime] = useState(0);
   const [timerBlock, setTimerBlock] = useState(null);
+
+  useEffect(() => {
+    socket.on("block change", (data) => {
+      switch (data.event) {
+        case "start":
+          if (!timerBlock) {
+            setStartBlock("start");
+          }
+          break;
+        case "pause":
+          setStartBlock("stop");
+          break;
+        default:
+          setTime(0);
+          setStartBlock("stop");
+      }
+    });
+
+    return () => socket.off("block change");
+  }, []);
 
   const tick = useCallback(() => {
     setTimerBlock(
@@ -16,28 +40,22 @@ export const BlockClock = () => {
         setTime((prevTime) => prevTime + 1);
       }, 1000)
     );
-  }, [setTimerBlock]);
+  }, [setTimerBlock, setTime, time]);
 
   function clickTimer(event) {
-    switch (event) {
+    axios.post(`/block/${event}`);
+  }
+
+  useEffect(() => {
+    switch (startBlock) {
       case "start":
-        if (!timerBlock) {
-          tick();
-        }
-        break;
-      case "pause":
-        pauseTimer();
+        tick();
         break;
       default:
-        setTime(0);
-        pauseTimer();
+        clearInterval(timerBlock);
+        break;
     }
-  };
-
-  function pauseTimer() {
-    clearInterval(timerBlock);
-    setTimerBlock(null);
-  }
+  }, [startBlock]);
 
   return (
     <div className="block-info">
@@ -54,7 +72,10 @@ export const BlockClock = () => {
           {" "}
           <img src={pause} alt="pause" />{" "}
         </button>
-        <button className="btn btn-secondary" onClick={() => clickTimer("restart")}>
+        <button
+          className="btn btn-secondary"
+          onClick={() => clickTimer("stop")}
+        >
           {" "}
           <img src={restart} alt="restart" />
         </button>

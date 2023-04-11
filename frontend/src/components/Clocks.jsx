@@ -11,7 +11,14 @@ import { ObsClock } from "./ObsClock";
 
 export const Clocks = () => {
   const state = useSelector((state) => state);
-  if (!state.loading && (!state.socket || state.error)) return <ErrorBlock />;
+  if (!state.loading && (!state.socket || state.error)) {
+    return (
+      <div>
+        <MainClock clockOnly={true}/>
+        <ErrorBlock />
+      </div>
+    );
+  }
 
   return (
     <div className="Clocks">
@@ -20,7 +27,7 @@ export const Clocks = () => {
       ) : (
         <>
           <section>
-            <MainClock />
+            <MainClock clockOnly={false}/>
             <BlockClock />
           </section>
           <section className="director-hints">

@@ -14,16 +14,19 @@ export const WebSocketProvider = ({ children }) => {
 
   if (!socket) {
     dispatch({ type: types.ShowAppLoading });
-    socket = io("http://localhost:4000", {
-      path: "/socket.io"
-    });
+    socket = io();
 
     socket.on("connect", function () {
       dispatch({
         type: types.SetSocket,
         payload: socket.connected,
       });
+      dispatch({ type: types.HideError });
       dispatch({ type: types.HideAppLoading });
+    });
+
+    socket.on("obs connected", () => {
+      window.location.reload(false);
     });
 
     socket.on("obs_failed", () => {
@@ -50,7 +53,7 @@ export const WebSocketProvider = ({ children }) => {
     });
 
     valueContext = {
-      socket: socket,
+      socket,
     };
   }
 

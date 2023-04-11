@@ -5,4 +5,6 @@ export const types = {
   SetSocket: "SetSocket",
   ShowError: "ShowError",
   HideError: "HideError",
+  ShowModal: "ShowModal",
+  HideModal: "HideModal"
 }

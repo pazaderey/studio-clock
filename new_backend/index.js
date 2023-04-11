@@ -1,56 +1,94 @@
-import express from "express";
-import { readFileSync } from "fs";
 import cors from "cors";
-import { Server } from "socket.io";
 import { createServer } from "http";
+import dotenv from "dotenv";
+import express from "express";
+import { getLogger } from "./logger.js";
 import { OBSService } from "./obs.js";
-import dotenv from "dotenv"
+import { readFileSync } from "fs";
+import { Server } from "socket.io";
+import swaggerUi from "swagger-ui-express";
+import yaml from "js-yaml"
 
 dotenv.config({ path: "../.env" });
 
 const env = process.env;
+const logger = getLogger();
+const swaggerDocument = yaml.load(readFileSync("./api/openapi.yaml", "utf8"));
+const obsConfig = JSON.parse(readFileSync("config.json")).obs;
+const FRONT_URL = env.FRONTEND_URL || "http://localhost";
+const FRONT_PORT = 80;
+const BACK_PORT = 4000;
 
-/**
- * @param {OBSService} obsService 
- */
-function startServer(obsService) {
+async function main() {
   const app = express();
   app.use(express.json());
   app.use(cors());
 
   const server = createServer(app);
-  const FRONT_URL = env.FRONTEND_URL || "http://localhost";
-  const FRONT_PORT = env.FRONTEND_PORT || 3000;
   const io = new Server(server, {
     cors: `${FRONT_URL}:${FRONT_PORT}`
   });
+  const obsService = new OBSService(io);
+  await obsService.connect(...Object.values(obsConfig));
 
-  app.post("/reconnect", async (req, res) => {
-    await obsService.reconnect(req.body);
-    if (obsService.obs) {
-      obsService.registerEvents(io);
-      io.emit("my response", { type: "connect" });
+  app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+  app.post("/reconnect", async ({ body }, res) => {
+    logger.debug(`Got reconnect with body: ${JSON.stringify(body)}`);
+
+    await obsService.connect(...Object.values(body));
+    if (obsService.connected) {
       return res.send({ status: "ok" });
     }
-    return res.send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
+    io.emit("obs_failed", { type: 'connect', error: true });
+    return res.status(400).send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
+  });
+
+  app.post("/message", async ({ body }, res) => {
+    logger.debug(`Got message with body ${JSON.stringify(body)}`);
+    try {
+      const message = body.message.toString();
+      if (message.length < 26) {
+        obsService.hint = message;
+        io.emit("director hint", { message });
+        return res.send({ status: "ok" });
+      }
+      return res.status(400).send({ status: "error", description: "Сообщение слишком длинное (больше 26 символов)." });
+    } catch (e) {
+      return res.status(400).send({ status: "error", description: "Сообщение нельзя преобразовать к тексту." });
+    }
+  });
+
+  app.post("/block/:event", (req, res) => {
+    const event = req.params.event;
+    logger.debug(`Got block with ${event}`);
+    if (["start", "pause", "stop"].includes(event)) {
+      io.emit("block change", { event });
+      res.send({ status: "ok" });
+    } else {
+      return res.status(400).send({ status: "error", description: "Такого события нет, вот список доступных: start, pause, stop" });
+    }
   });
 
   io.on("connection", async (socket) => {
-
-    socket.on("record info", async () => {
-      const recordStatus = await obsService.getRecordStatus();
-      socket.emit("my response", { type: "return", time: recordStatus.outputTimecode });
-    });
+    logger.info("Connected to front");
+    if (!obsService.connected) {
+      socket.emit("obs_failed", { type: 'connect', error: true });
+      return;
+    }
+    let streamTime = "";
+    let recordTime = "";
 
     socket.on("media info", async (data) => {
       const mediaStatus = await obsService.getMediaInputStatus(data);
-      socket.emit("media response", {
+      const eventData = {
         type: 'media',
         event: 'duration',
         duration: mediaStatus.mediaDuration,
         time: mediaStatus.mediaCursor,
         sourceName: data
-      });
+      };
+      socket.emit("media response", eventData);
     });
 
     socket.on("input list", async () => {
@@ -58,56 +96,70 @@ function startServer(obsService) {
       socket.emit("input list", { inputs });
     });
 
-    socket.on('check input', async (data) => {
+    socket.on("audio change", async (data) => {
       const { inputMuted } = await obsService.getInputMute(data);
-      socket.emit("audio state", { input: data, state: !inputMuted });
+      const eventData = { input: data, inputMuted }
+      io.emit("audio change", eventData);
     });
 
-    console.log("Connected to front");
-    let streamTime = "";
-    let recordTime = "";
-    if (obsService.obs) {
-      obsService.registerEvents(io);
-      const streamStatus = await obsService.getStreamStatus();
-      const recordStatus = await obsService.getRecordStatus();
-      if (streamStatus.outputActive) {
-        streamTime = streamStatus.outputTimecode;
-      }
+    socket.on("obs priority", (data) => {
+      obsService.priority = data.event;
+      io.emit("obs priority", data);
+    });
 
-      if (recordStatus.outputActive) {
-        recordTime = recordStatus.outputTimecode;
-      }
+    const streamStatus = await obsService.getStreamStatus();
+    const recordStatus = await obsService.getRecordStatus();
+    if (streamStatus.outputActive) {
+      streamTime = streamStatus.outputTimecode;
+    }
 
-      io.emit("my response", {
-        type: 'connect',
-        stream: streamStatus.outputActive,
-        recording: recordStatus.outputActive,
-        recordPause: recordStatus.outputPaused,
-        streamTime, recordTime
-      });
+    if (recordStatus.outputActive) {
+      recordTime = recordStatus.outputTimecode;
+    }
 
-      const { inputs } = await obsService.getInputList();
-      if (inputs?.length) {
-        const mediaStatus = await obsService.getMediaInputStatus(inputs[0].inputName);
-        if (["OBS_MEDIA_STATE_PAUSED", "OBS_MEDIA_STATE_PLAYING"].includes(mediaStatus.mediaState)) {
-          const duration = mediaStatus.mediaDuration;
-          const time = mediaStatus.mediaCursor;
-          io.emit("my response", { type: 'media', event: 'connect', state: mediaStatus.mediaState, time, duration });
+    socket.emit("obs state", {
+      type: "connect",
+      event: "connect",
+      stream: streamStatus.outputActive,
+      recording: recordStatus.outputActive,
+      recordPause: recordStatus.outputPaused,
+      streamTime,
+      recordTime
+    });
+
+    socket.emit("director hint", { message: obsService.hint });
+
+    const inputs = await obsService.getInputList();
+    socket.emit("input list", { inputs });
+    if (inputs?.length) {
+      let mediaInput;
+      for (const input of inputs) {
+        const tempStatus = await obsService.getMediaInputStatus(input.inputName);
+        if (["OBS_MEDIA_STATE_PAUSED", "OBS_MEDIA_STATE_PLAYING"].includes(tempStatus.mediaState)) {
+          mediaInput = input.inputName;
+          break;
         }
       }
-    } else {
-      io.emit("obs_failed", { type: 'connect', error: true });
+      if (!mediaInput) {
+        return;
+      }
+      const mediaStatus = await obsService.getMediaInputStatus(mediaInput);
+      const duration = mediaStatus.mediaDuration;
+      const time = mediaStatus.mediaCursor;
+      socket.emit("media response", {
+        type: 'media',
+        event: 'connect',
+        state: mediaStatus.mediaState,
+        time,
+        duration
+      });
     }
   });
 
-  const PORT = env.BACKEND_PORT || 4000;
-  server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+  server.listen(BACK_PORT, () => {
+    logger.info(`Server started on port ${BACK_PORT}`);
+    logger.debug("Logs containing Unicode characters may display incorrect");
+  });
 }
 
-(async function main() {
-  const { obs: obsConfig } = JSON.parse(readFileSync("config.json"));
-  const obsService = new OBSService(obsConfig);
-  await obsService.init();
-  startServer(obsService);
-})().catch(e => console.log(e));
-
+main().catch(e => logger.error(e));

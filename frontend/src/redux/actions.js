@@ -19,4 +19,10 @@ export const handlers = {
     [types.HideError]: (state) => {
         return { ...state, error: false };
     },
+    [types.ShowModal]: (state) => {
+        return { ...state, modal: true };
+    },
+    [types.HideModal]: (state) => {
+        return { ...state, modal: false };
+    },
 }
