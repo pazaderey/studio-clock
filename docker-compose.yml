@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  frontend:
+    container_name: clock_front
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+  backend:
+    container_name: clock_back
+    build: ./new_backend
+    ports:
+      - "4000:4000"

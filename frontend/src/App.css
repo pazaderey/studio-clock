@@ -1,6 +1,15 @@
 .Clocks {
   height: 100vh;
   position: relative;
+  box-sizing: border-box;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
 }
 
 section {
@@ -11,7 +20,7 @@ section {
   border-bottom: 2px solid black;
 }
 
-section>p {
+div > p {
   width: 100%;
 }
 
@@ -22,90 +31,142 @@ section p {
 p.description {
   font-size: 3rem;
   font-weight: bold;
+  height: 25%;
 }
 
 p.timer {
   font-size: 9rem;
   font-weight: 400;
+  height: 75%;
+}
+
+p.hint {
+  font-size: 6rem;
+  font-weight: 400;
+}
+
+.main-clock {
+  width: 50%;
+  height: 100%;
+  border-right: 2px solid #000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.clock-only {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.clock-only > p.timer {
+  font-size: 18rem;
+  font-weight: 400;
+  height: 50%;
 }
 
 .obs-clock {
   position: relative;
 }
 
-.streaming-container,
 .block-container {
   width: 50%;
   height: 100%;
-  border-right: 2px solid black;
+  border-right: 2px solid #000;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.streaming-container {
+  width: 50%;
+  height: 100%;
+  border-right: 2px solid #000;
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: space-between;
 }
 
 .streaming-container p.playing-stream {
   color: red;
 }
 
-.only-stream {
-  width: 100% !important;
-  border-right: none;
+.obs-clock-clock {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  width: calc(100% - 80px);
 }
 
-.clockIcon {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 0.7rem;
+.obs-clock-clock > p.timer {
+  height: 75%;
 }
 
-.clockIcon img {
-  width: 3rem;
+.obs-clock-icons {
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+}
+
+.obs-icon {
   cursor: pointer;
+  width: 80px;
+  height: auto;
 }
 
-.block-container.false-block {
-  display: none
+img.priority {
+  border: 2px #000 solid;
 }
 
-.block-container .block-buttons {
-  width: 7%;
+.block-buttons {
+  width: 10%;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  margin-right: 0.5%;
 }
 
-.block-container .block-buttons button {
+.block-buttons button {
   margin-top: 0.6rem;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0.1rem 0;
+  height: 3rem;
 }
 
-.block-container .block-buttons button img {
-  width: 1rem;
-  /* margin-right: 1rem; */
-}
-
-.block-container.true-block {
-  display: block
+.block-buttons button img {
+  width: 2rem;
 }
 
 .block-info {
+  width: 50%;
   display: flex;
   flex-direction: row;
-  height: 100%;
 }
 
-.block-info .block-clock {
-  width: 92%;
+.block-clock {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex-grow: 1;
 }
 
 .settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2%;
+}
+
+.settings-obs {
+  width: 100%;
   padding: 2rem;
   display: flex;
   justify-content: space-around;
@@ -113,34 +174,43 @@ p.timer {
 }
 
 .media-clock {
+  height: 100%;
+  width: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.settings .settings-block {
+.media-clock > p.timer {
+  height: 68%;
+}
+
+.settings-obs .settings-block {
   display: flex;
   flex-direction: column;
 }
 
-.settings .settings-block .form-label {
+.settings-obs .settings-block .form-label {
   font-size: 1.2rem;
 }
 
-.settings .settings-block .form-label span {
+.settings-obs .settings-block .form-label span {
   color: red;
   font-weight: bold;
 }
 
-.settings .settings-block.all-invalid-true {
+.settings-obs .settings-block.all-invalid-true {
   margin-bottom: 1.3rem;
 }
 
-.settings .settings-block .all-invalid-true {
+.settings-obs .settings-block .all-invalid-true {
   margin-bottom: 1.3rem;
 }
 
+.api-btn {
+  width: 10%;
 
+}
 
 .loader.large {
   position: absolute;
@@ -180,12 +250,99 @@ p.timer {
   text-align: center;
 }
 
-@media screen and (min-width: 1000px) {
-  /* .clockIcon {
-    padding: 0.7rem;
+.progress-bar-container {
+  height: 7%;
+  width: 100%;
+  background: red;
+}
+
+.progress-bar-filler {
+  height: 100%;
+  background-color: #fff;
+}
+
+section.director-hints {
+  align-items: start;
+}
+
+.block-director-hint {
+  width: calc(100% - 150px);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 2px solid black;
+}
+
+.hint-btn {
+  margin-left: 0.3%;
+}
+
+.hint-modal {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: none;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.hint-modal-content {
+  padding: 25px;
+  background: white;
+  border-radius: 16px;
+  min-width: 900px;
+  min-height: 200px;
+}
+
+.hint-modal.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hint-input {
+  width: 100%;
+  padding: 5px 15px;
+  margin: 5px 0;
+  border: 1px solid black;
+  font-size: 3rem;
+  text-align: center;
+}
+
+.hint-send-btn { 
+  width: 50%;
+  font-size: 1rem;
+}
+
+.block-audio-state {
+  margin-right: 0.3%;
+  width: 150px;
+}
+
+.block-audio-state > select {
+  width: 150px;
+}
+
+.block-audio-state > img {
+  width: 150px;
+  height: 150px;
+}
+
+@media screen and (not ((not (max-width: 1208px)) and (not (max-height: 800px)))) {
+  p.description {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  p.timer {
+    font-size: 8rem;
+    font-weight: 400;
   }
 
-  .clockIcon img {
-    width: 3rem;
-  } */
+  .progress-bar-container {
+    width: 100%;
+    background: red;
+  }
 }

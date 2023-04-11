@@ -1,84 +1,87 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { WebSocketContext } from './WebSocket';
-
+import React, { useContext, useEffect, useState } from "react";
+import { WebSocketContext } from "./WebSocket";
+import { ProgressBar } from "./ProgressBar";
+import { useFormat } from "../hooks/customHooks";
 
 export const MediaClock = () => {
-    const { socket } = useContext(WebSocketContext);
+  const { socket } = useContext(WebSocketContext);
 
-    const [time, setTime] = useState(0);
-    const [start, setStart] = useState(false)
-    const [timer, setTimer] = useState(null)
+  const [time, setTime] = useState(0);
+  const [start, setStart] = useState(false);
+  const [timer, setTimer] = useState(null);
+  const [duration, setDuration] = useState(1);
 
+  useEffect(() => {
+    socket.on("media response", (data) => {
+      switch (data.event) {
+        case "start":
+          socket.emit("media info", data.sourceName);
+          break;
 
-    useEffect(() => {
-       socket.on('media response', data => {
-          data = JSON.parse(data)
-          switch (data.event) {
+        case "stop":
+          setStart(false);
+          setTime(0);
+          setDuration(1);
+          break;
 
-           case 'start':
-              socket.emit('media info', {'sourceName': data.sourceName})
-              break;
+        case "paused":
+          setStart(false);
+          break;
 
-           case 'stop':
-              setStart(false) && setTime(0)
-              break;
+        case "duration":
+          if (data.duration < 0 || data.time < 0) {
+            break;
+          }
+          setDuration(data.duration);
+          setTime(data.duration - data.time);
+          clearInterval(timer);
+          setStart(true);
+          break;
 
-           case 'paused':
-              setStart(false)
-              break;
+        case "connect":
+          if (data.duration < 0 || (data.duration - data.time < 0)) {
+            break;
+          }
+          setTime(data.duration - data.time);
+          setDuration(data.duration);
+          if (data.state === "OBS_MEDIA_STATE_PLAYING") {
+            clearInterval(timer);
+            setStart(true);
+          }
+          break;
 
-           case 'duration':
-              data.time <= 1000 && setTime(data.duration)
-              setStart(true)
-              break;
-           
-	   case 'connect':
-              data.time > 100 && setTime(data.duration - data.time)
-              data.state === 'playing' && setStart(true)
-              break;
+        default:
+          break;
+      }
+    });
+    return () => socket.off("media response");
+  }, []);
 
-           default:
-               break;
-        }
-      })
-    return () =>  socket.off('media response')
-    }, [])
+  useEffect(() => {
+    start ? tick() : clearInterval(timer);
+  }, [start]);
 
-
-    useEffect(() => {
-        start ? tick() : clearInterval(timer)
-    }, [start])
-
-
-    useEffect(() => {
-        (time < 1000) && setStart(false)
-    }, [time])
-
-    const tick = () => {
-        setTimer(setInterval(() => {
-            setTime(prevTime => prevTime - 1000)
-        }, 1000))
+  useEffect(() => {
+    if (time < 1000) {
+      setStart(false);
     }
+  }, [time]);
 
-    const format = time => {
+  const tick = () => {
+    setTimer(
+      setInterval(() => {
+        setTime((prevTime) => prevTime - 1000);
+      }, 1000)
+    );
+  };
 
-        const minutes = time / 1000 / 60
-        const seconds = Math.floor((minutes % 1) * 60)
-        const hours = Math.floor(time / 1000 / 60 / 60);
+  const format = useFormat();
 
-        const formatted = [
-            hours.toString().padStart(2, '0'),
-            Math.floor(minutes).toString().padStart(2, '0'),
-            seconds.toString().padStart(2, '0')
-        ].join(':');
-
-        return formatted;
-    };
-
-    return (
-        <section className="media-clock">
-            <p className="description">До конца ролика:</p>
-            <p className="timer">{format(time)}</p>
-        </section>
-    )
-}
+  return (
+    <div className="media-clock">
+      <p className="description">До конца ролика:</p>
+      <ProgressBar completed={Math.round((1 - time / duration) * 1000) / 10}/>
+      <p className="timer">{format(Math.floor(time / 1000))}</p>
+    </div>
+  );
+};
