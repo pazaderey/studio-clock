@@ -7,7 +7,7 @@ import { OBSService } from "./obs.js";
 import { readFileSync } from "fs";
 import { Server } from "socket.io";
 import swaggerUi from "swagger-ui-express";
-import yaml from "js-yaml"
+import yaml from "js-yaml";
 
 dotenv.config({ path: "../.env" });
 
@@ -40,7 +40,7 @@ async function main() {
     if (obsService.connected) {
       return res.send({ status: "ok" });
     }
-    io.emit("obs_failed", { type: 'connect', error: true });
+    io.emit("obs_failed", { type: "connect", error: true });
     return res.status(400).send({ status: "error", description: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных." });
   });
 
@@ -73,7 +73,7 @@ async function main() {
   io.on("connection", async (socket) => {
     logger.info("Connected to front");
     if (!obsService.connected) {
-      socket.emit("obs_failed", { type: 'connect', error: true });
+      socket.emit("obs_failed", { type: "connect", error: true });
       return;
     }
     let streamTime = "";
@@ -82,8 +82,8 @@ async function main() {
     socket.on("media info", async (data) => {
       const mediaStatus = await obsService.getMediaInputStatus(data);
       const eventData = {
-        type: 'media',
-        event: 'duration',
+        type: "media",
+        event: "duration",
         duration: mediaStatus.mediaDuration,
         time: mediaStatus.mediaCursor,
         sourceName: data
@@ -98,7 +98,7 @@ async function main() {
 
     socket.on("audio change", async (data) => {
       const { inputMuted } = await obsService.getInputMute(data);
-      const eventData = { input: data, inputMuted }
+      const eventData = { input: data, inputMuted };
       io.emit("audio change", eventData);
     });
 
@@ -147,8 +147,8 @@ async function main() {
       const duration = mediaStatus.mediaDuration;
       const time = mediaStatus.mediaCursor;
       socket.emit("media response", {
-        type: 'media',
-        event: 'connect',
+        type: "media",
+        event: "connect",
         state: mediaStatus.mediaState,
         time,
         duration

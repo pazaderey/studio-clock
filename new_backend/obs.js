@@ -3,17 +3,17 @@ import OBSWebSocket from "obs-websocket-js";
 import { Server } from "socket.io";
 
 const OBS_OUTPUT_EVENTS = {
-  "OBS_WEBSOCKET_OUTPUT_STARTED": "start",
-  "OBS_WEBSOCKET_OUTPUT_STOPPED": "stop",
-  "OBS_WEBSOCKET_OUTPUT_PAUSED": "pause",
-  "OBS_WEBSOCKET_OUTPUT_RESUMED": "resume"
-}
+  OBS_WEBSOCKET_OUTPUT_STARTED: "start",
+  OBS_WEBSOCKET_OUTPUT_STOPPED: "stop",
+  OBS_WEBSOCKET_OUTPUT_PAUSED: "pause",
+  OBS_WEBSOCKET_OUTPUT_RESUMED: "resume"
+};
 
 const logger = getLogger();
 
 export class OBSService {
   /**
-   * @param {Server} io 
+   * @param {Server} io
    */
   constructor(io) {
     this.obs = new OBSWebSocket();
@@ -87,7 +87,7 @@ export class OBSService {
   }
 
   /**
-   * @param {Server} io 
+   * @param {Server} io
    */
   _registerEvents(io) {
     logger.debug("Registered events");
@@ -104,7 +104,7 @@ export class OBSService {
     });
 
     this.obs.on("StreamStateChanged", (args) => {
-      logger.debug("StreamStateChanged", args)
+      logger.debug("StreamStateChanged", args);
       this.stream = args.outputActive;
       if (!this.record) {
         io.emit("obs state", { type: "stream", event: OBS_OUTPUT_EVENTS[args.outputState] });
@@ -113,7 +113,6 @@ export class OBSService {
       if (this.priority === "stream") {
         io.emit("obs state", { type: "stream", event: OBS_OUTPUT_EVENTS.OBS_WEBSOCKET_OUTPUT_STOPPED });
         io.emit("obs state", { type: "stream", event: OBS_OUTPUT_EVENTS[args.outputState] });
-        return;
       }
     });
 
@@ -127,7 +126,6 @@ export class OBSService {
       if (this.priority === "record") {
         io.emit("obs state", { type: "record", event: OBS_OUTPUT_EVENTS.OBS_WEBSOCKET_OUTPUT_STOPPED });
         io.emit("obs state", { type: "record", event: OBS_OUTPUT_EVENTS[args.outputState] });
-        return;
       }
     });
 
