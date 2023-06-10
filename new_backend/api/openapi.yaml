@@ -1,17 +1,27 @@
 openapi: 3.0.0
 info:
-  title: Swagger Studio Clock - OpenAPI 3.0
+  title: Swagger Studio Clock - OpenAPI 3.0.0
   description: Swagger for the Studio Clock application for MIEM.
-  version: 1.0.0
+  version: 1.1.0
 servers:
   - url: https://clock.miem.tv
 paths:
-  /reconnect:
+  /reconnect/{mixer}:
     post:
-      summary: Connect Clocks to new OBS
-      description: Connect Clocks to new OBS
+      summary: Connect Clocks to new mixer
+      description: Connect Clocks to new mixer
+      parameters:
+          - name: mixer
+            in: path
+            description: Mixer to reconnect
+            required: true
+            schema:
+              enum: [
+                "obs",
+                "vmix"
+              ]
       requestBody:
-        description: Specify OBS credentials
+        description: Specify mixer credentials
         content:
           application/json:
             schema:
@@ -32,7 +42,7 @@ paths:
         required: true
       responses:
         "200":
-          description: Successuful connection
+          description: Successful connection
           content:
             application/json:
               schema:
@@ -41,7 +51,7 @@ paths:
                   status:
                     type: string
                     example: "ok"
-        "400":
+        "422":
           description: Unsuccessful connection
           content:
             application/json:
@@ -53,7 +63,20 @@ paths:
                     example: "error"
                   description:
                     type: string
-                    example: "Не удалось подключиться к OBS. Удостоверьтесь в правильности данных."
+                    example: "Не удалось подключиться к obs. Удостоверьтесь в правильности данных."
+        "404":
+          description: Mixer not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  description:
+                    type: string
+                    example: "Такого микшера нет, вот список доступных: obs, vmix"
   /message:
     post:
       summary: Send message to director hint block
@@ -70,7 +93,7 @@ paths:
                   example: "Встаньте левее"
       responses:
         "200":
-          description: Your body was delivered
+          description: Your message was delivered
           content:
             application/json:
               schema:
@@ -79,8 +102,8 @@ paths:
                   status:
                     type: string
                     example: "ok"
-        "400":
-          description: The message is too long or cannot be converted to text
+        "422":
+          description: The message is too long
           content:
             application/json:
               schema:
@@ -92,6 +115,19 @@ paths:
                   description:
                     type: string
                     example: "Сообщение слишком длинное (больше 26 символов)."
+        "415":
+          description: The message cannot be converted to text
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  description:
+                    type: string
+                    example: "Сообщение нельзя преобразовать к тексту."
   /block/{operation}:
     post:
       summary: Start the block timer
@@ -118,7 +154,7 @@ paths:
                   status:
                     type: string
                     example: "ok"
-        "400":
+        "404":
           description: Invalid operation
           content:
             application/json:

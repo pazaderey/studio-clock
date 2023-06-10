@@ -1,10 +1,12 @@
-import React from "react";
 import axios from "axios";
-import { types } from "../redux/types";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useState, } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+
+import { types } from "../redux/types";
 
 export const Settings = () => {
+  const [mixer, setMixer] = useState("OBS");
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.loading);
   const {
@@ -13,16 +15,16 @@ export const Settings = () => {
     formState: { errors },
   } = useForm();
 
-  const sendData = async (data) => {
+  const changeMixer = useCallback(() => mixer === "OBS" ? "vMix" : "OBS", [mixer]);
+
+  const sendData = useCallback(async (data) => {
     dispatch({ type: types.ShowAppLoading });
 
     axios
-      .post("/reconnect", data)
+      .post(`/reconnect/${mixer.toLowerCase()}`, data)
       .then((res) => {
         if (res.data.status === "error") {
           dispatch({ type: types.ShowError, payload: res.data.description });
-        } else {
-          window.location.reload(false);
         }
       })
       .catch((err) =>
@@ -32,7 +34,7 @@ export const Settings = () => {
         })
       )
       .finally(() => dispatch({ type: types.HideAppLoading }));
-  };
+  }, [mixer]);
 
   const handleKeypress = (e) => {
     e.charCode === 13 && handleSubmit((data) => sendData(data))();
@@ -40,10 +42,10 @@ export const Settings = () => {
 
   return (
     <div className="settings">
-      <div className="settings-obs">
+      <div className="settings-mixer">
         <div className={`settings-block`}>
           <label className="form-label" htmlFor="ip-input ">
-            IP-address OBS<span> *</span>
+            {mixer} IP адрес<span> *</span>
           </label>
           <input
             {...register("ip", {
@@ -65,7 +67,7 @@ export const Settings = () => {
         </div>
         <div className={`settings-block`}>
           <label className="form-label" htmlFor="port-input">
-            Port OBS<span> *</span>
+            {mixer} порт<span> *</span>
           </label>
           <input
             {...register("port", {
@@ -91,9 +93,10 @@ export const Settings = () => {
         <div
           className={`settings-block all-invalid-${!!Object.keys(errors)
             .length}`}
+          hidden={mixer === "vMix"}
         >
           <label className="form-label" htmlFor="password-input">
-            Password OBS
+            OBS пароль
           </label>
           <input
             type="password"
@@ -114,14 +117,26 @@ export const Settings = () => {
             disabled={loading}
             onClick={handleSubmit((data) => sendData(data))}
           >
-            Send
+            Подключиться
           </button>
         </div>
       </div>
 
-      <button className="btn btn-primary api-btn" onClick={() => window.location.href="/api"}>
-        View API
-      </button>
+      <div className="block-info">
+        <button
+          className="btn btn-primary api-btn"
+          onClick={() => (window.location.href = "/api")}
+        >
+          Посмотреть API
+        </button>
+
+        <button
+          className="btn btn-primary api-btn"
+          onClick={() => setMixer(changeMixer)}
+        >
+          Подключиться к {changeMixer()}
+        </button>
+      </div>
     </div>
   );
 };

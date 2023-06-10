@@ -69,7 +69,7 @@ p.hint {
   height: 50%;
 }
 
-.obs-clock {
+.mixer-clock {
   position: relative;
 }
 
@@ -92,11 +92,11 @@ p.hint {
   justify-content: space-between;
 }
 
-.streaming-container p.playing-stream {
+p.playing-stream {
   color: red;
 }
 
-.obs-clock-clock {
+.mixer-clock-clock {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -104,17 +104,17 @@ p.hint {
   width: calc(100% - 80px);
 }
 
-.obs-clock-clock > p.timer {
+.mixer-clock-clock > p.timer {
   height: 75%;
 }
 
-.obs-clock-icons {
+.mixer-clock-icons {
   display: flex;
   flex-direction: column;
   width: 80px;
 }
 
-.obs-icon {
+.mixer-icon {
   cursor: pointer;
   width: 80px;
   height: auto;
@@ -149,6 +149,7 @@ img.priority {
   width: 50%;
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
 }
 
 .block-clock {
@@ -165,7 +166,7 @@ img.priority {
   margin-bottom: 2%;
 }
 
-.settings-obs {
+.settings-mixer {
   width: 100%;
   padding: 2rem;
   display: flex;
@@ -185,31 +186,30 @@ img.priority {
   height: 68%;
 }
 
-.settings-obs .settings-block {
+.settings-mixer .settings-block {
   display: flex;
   flex-direction: column;
 }
 
-.settings-obs .settings-block .form-label {
+.settings-mixer .settings-block .form-label {
   font-size: 1.2rem;
 }
 
-.settings-obs .settings-block .form-label span {
+.settings-mixer .settings-block .form-label span {
   color: red;
   font-weight: bold;
 }
 
-.settings-obs .settings-block.all-invalid-true {
+.settings-mixer .settings-block.all-invalid-true {
   margin-bottom: 1.3rem;
 }
 
-.settings-obs .settings-block .all-invalid-true {
+.settings-mixer .settings-block .all-invalid-true {
   margin-bottom: 1.3rem;
 }
 
 .api-btn {
-  width: 10%;
-
+  width: 20%;
 }
 
 .loader.large {
@@ -344,5 +344,100 @@ section.director-hints {
   .progress-bar-container {
     width: 100%;
     background: red;
+  }
+}
+
+@media screen and (not ((not (max-width: 1108px)) and (not (max-height: 680px)))) {
+  p.description {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  
+  p.timer {
+    font-size: 7rem;
+    font-weight: 400;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    background: red;
+  }
+
+  p.hint {
+    font-size: 5rem;
+    font-weight: 400;
+  }
+}
+
+@media screen and (not ((not (max-width: 980px)) and (not (max-height: 590px)))) {
+  p.description {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  p.timer {
+    font-size: 6rem;
+    font-weight: 400;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    background: red;
+  }
+
+  p.hint {
+    font-size: 4.5rem;
+    font-weight: 400;
+  }
+}
+
+@media screen and (max-height: 580px) {
+  p.description {
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+  
+  p.timer {
+    font-size: 4rem;
+    font-weight: 400;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    background: red;
+  }
+
+  .block-buttons button {
+    margin-top: 0.6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.1rem 0;
+    height: 2rem;
+  }
+  
+  .block-buttons button img {
+    width: 2rem;
+  }
+
+  .mixer-icon {
+    cursor: pointer;
+    width: 60px;
+    height: auto;
+  }
+
+  .block-audio-state > img {
+    width: 90px;
+    height: 90px;
+  }
+
+  .hint-btn {
+    margin-left: 0.3%;
+    max-width: 90px;
+  }
+
+  p.hint {
+    font-size: 2.5rem;
+    font-weight: 400;
   }
 }

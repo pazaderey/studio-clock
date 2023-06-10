@@ -1,9 +1,11 @@
+import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import React from 'react';
+
+import { Clocks } from './components/Clocks';
 import { Settings } from './components/Settings';
 import { WebSocketProvider } from './components/WebSocket';
-import { Clocks } from './components/Clocks';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
 
 function App() {
   return (

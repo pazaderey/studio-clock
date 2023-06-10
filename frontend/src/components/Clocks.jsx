@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+
 import { AudioState } from "./AudioState";
 import { BlockClock } from "./BlockClock";
 import { DirectorHints } from "./DirectorHints";
@@ -7,7 +8,7 @@ import { ErrorBlock } from "./ErrorBlock";
 import { Loading } from "./Loading";
 import { MainClock } from "./MainClock";
 import { MediaClock } from "./MediaClock";
-import { ObsClock } from "./ObsClock";
+import { StateClock } from "./StateClock";
 
 export const Clocks = () => {
   const state = useSelector((state) => state);
@@ -35,7 +36,7 @@ export const Clocks = () => {
             <AudioState/>
           </section>
           <section>
-            <ObsClock />
+            <StateClock />
             <MediaClock />
           </section>
         </>

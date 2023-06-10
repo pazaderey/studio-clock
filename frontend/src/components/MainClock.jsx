@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 export const MainClock = ({ clockOnly }) => {
   function getTime() {
-    return (new Date()).toLocaleTimeString([], { hour12: false });
+    return new Date().toLocaleTimeString([], { hour12: false });
   }
 
   const [time, setTime] = useState(getTime());
@@ -15,7 +15,7 @@ export const MainClock = ({ clockOnly }) => {
 
   return (
     <div className={clockOnly ? "clock-only" : "main-clock"}>
-      {clockOnly ? "" : <p className="description">GMT+3</p>}
+      {clockOnly ? "" : <p className="description">{`GMT+${new Date().getTimezoneOffset() / -60}`}</p>}
       <p className="timer">{time}</p>
     </div>
   );

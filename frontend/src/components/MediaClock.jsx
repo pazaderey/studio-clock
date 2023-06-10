@@ -1,7 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { WebSocketContext } from "./WebSocket";
-import { ProgressBar } from "./ProgressBar";
+
 import { useFormat } from "../hooks/customHooks";
+
+import { ProgressBar } from "./ProgressBar";
+import { WebSocketContext } from "./WebSocket";
 
 export const MediaClock = () => {
   const { socket } = useContext(WebSocketContext);
@@ -29,25 +31,10 @@ export const MediaClock = () => {
           break;
 
         case "duration":
-          if (data.duration < 0 || data.time < 0) {
-            break;
-          }
           setDuration(data.duration);
           setTime(data.duration - data.time);
           clearInterval(timer);
           setStart(true);
-          break;
-
-        case "connect":
-          if (data.duration < 0 || (data.duration - data.time < 0)) {
-            break;
-          }
-          setTime(data.duration - data.time);
-          setDuration(data.duration);
-          if (data.state === "OBS_MEDIA_STATE_PLAYING") {
-            clearInterval(timer);
-            setStart(true);
-          }
           break;
 
         default:
@@ -80,8 +67,14 @@ export const MediaClock = () => {
   return (
     <div className="media-clock">
       <p className="description">До конца ролика:</p>
-      <ProgressBar completed={Math.round((1 - time / duration) * 1000) / 10}/>
-      <p className="timer">{format(Math.floor(time / 1000))}</p>
+      <p
+        className={
+          "timer " + (time < 10000 && time > 0 ? "playing-stream" : "")
+        }
+      >
+        {format(Math.floor(time / 1000))}
+      </p>
+      <ProgressBar completed={Math.round((1 - time / duration) * 1000) / 10} />
     </div>
   );
 };

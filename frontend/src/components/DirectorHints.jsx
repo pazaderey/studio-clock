@@ -1,9 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
-import { WebSocketContext } from "./WebSocket";
+import React, { useContext, useEffect, useState,  } from "react";
+import { useDispatch } from "react-redux";
+
+import { types } from "../redux/types";
+
 import { HintForm } from "./HintForm";
 import { HintModal } from "./HintModal";
-import { useDispatch } from "react-redux";
-import { types } from "../redux/types";
+import { WebSocketContext } from "./WebSocket";
 
 export function DirectorHints() {
   const dispatch = useDispatch();
@@ -12,10 +14,10 @@ export function DirectorHints() {
 
   useEffect(() => {
     socket.on("director hint", (data) => {
-      if (data && data.message) {
-        setHint(data.message);
-      }
+      setHint(data.message);
     });
+
+    socket.emit("director hint");
 
     return () => socket.off("director hint");
   });
