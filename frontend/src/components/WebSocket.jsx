@@ -1,6 +1,7 @@
 import React, { createContext } from "react";
 import { useDispatch } from "react-redux";
 import { io } from "socket.io-client";
+
 import { types } from "../redux/types";
 
 const WebSocketContext = createContext(null);
@@ -14,7 +15,7 @@ export const WebSocketProvider = ({ children }) => {
 
   if (!socket) {
     dispatch({ type: types.ShowAppLoading });
-    socket = io();
+    socket = io({ timeout: 5000 });
 
     socket.on("connect", function () {
       dispatch({
@@ -25,21 +26,13 @@ export const WebSocketProvider = ({ children }) => {
       dispatch({ type: types.HideAppLoading });
     });
 
-    socket.on("obs connected", () => {
+    socket.on("mixer connected", () => {
       window.location.reload(false);
     });
 
-    socket.on("obs_failed", () => {
+    socket.on("mixer failed", () => {
       dispatch({
         type: types.ShowError,
-        payload: socket.connected,
-      });
-      dispatch({ type: types.HideAppLoading });
-    })
-
-    socket.on("connect_error", () => {
-      dispatch({
-        type: types.SetSocket,
         payload: socket.connected,
       });
       dispatch({ type: types.HideAppLoading });
