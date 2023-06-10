@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect, useState, } from "react";
+
 import { useFormat } from "../hooks/customHooks";
-import { WebSocketContext } from "./WebSocket";
-import streaming from "../img/stream.png";
+import no_rec from "../img/no_rec.png";
 import no_stream from "../img/no_stream.png";
 import recording from "../img/recording.png";
-import no_rec from "../img/no_rec.png";
+import streaming from "../img/stream.png";
 
-export const ObsClock = () => {
+import { WebSocketContext } from "./WebSocket";
+
+export const StateClock = () => {
   const { socket } = useContext(WebSocketContext);
 
   const [start, setStart] = useState(false);
@@ -19,6 +21,7 @@ export const ObsClock = () => {
   const [rec, setRec] = useState(no_rec);
 
   const format = useFormat(time);
+  const favicon = document.getElementById("favicon");
 
   const EVENTS = {
     "auto": "записи/эфира",
@@ -28,7 +31,7 @@ export const ObsClock = () => {
   };
 
   useEffect(() => {
-    socket.on("obs state", (data) => {
+    socket.on("mixer state", (data) => {
       setDesc(EVENTS[data.type]);
       switch (data.event) {
         case "connect":
@@ -64,24 +67,26 @@ export const ObsClock = () => {
       }
     });
 
-    socket.on("obs priority", ({ event }) => {
+    socket.on("mixer priority", ({ event }) => {
       setPriority(event);
     });
 
     return () => {
-      socket.off("obs state");
-      socket.off("obs priority");
+      socket.off("mixer state");
+      socket.off("mixer priority");
     }
   }, []);
 
   useEffect(() => {
     if (start) {
-        !cont && setTime(0)
-        tick();
+      !cont && setTime(0);
+      tick();
+      favicon.href = "favicon-red.ico";
+    } else {
+      clearInterval(timer);
+      favicon.href = "favicon.ico";
     }
-    !start && clearInterval(timer)
   }, [start]);
-
 
   function continueTime(cont, strTime) {
     let sec = 0;
@@ -104,26 +109,26 @@ export const ObsClock = () => {
   }, [setTimer, setTime]);
 
   function clickIcon(event) {
-    socket.emit("obs priority", { event: event === priority ? "auto" : event });
+    socket.emit("mixer priority", { event: event === priority ? "auto" : event });
   }
 
   return (
     <div className={"streaming-container only-stream"}>
-      <div className="obs-clock-icons">
+      <div className="mixer-clock-icons">
         <img
           src={stream}
-          className={`obs-icon ${priority === "stream" ? "priority" : ""}`}
+          className={`mixer-icon ${priority === "stream" ? "priority" : ""}`}
           alt="stream icon"
           onClick={() => clickIcon("stream")}
         />
         <img
           src={rec}
-          className={`obs-icon ${priority === "record" ? "priority" : ""}`}
+          className={`mixer-icon ${priority === "record" ? "priority" : ""}`}
           alt="stream icon"
           onClick={() => clickIcon("record")}
         />
       </div>
-      <div className="obs-clock-clock">
+      <div className="mixer-clock-clock">
         <p className="description">С начала {desc}:</p>
         <p className={"timer " + (start ? "playing-stream" : "")}>
           {format(time)}

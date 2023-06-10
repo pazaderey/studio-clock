@@ -1,10 +1,12 @@
 import axios from "axios";
-import React, { useState, useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect, useState, } from "react";
+
 import { useFormat } from "../hooks/customHooks";
-import { WebSocketContext } from "./WebSocket";
 import pause from "../img/pause.png";
 import play from "../img/play.png";
 import restart from "../img/restart.png";
+
+import { WebSocketContext } from "./WebSocket";
 
 export const BlockClock = () => {
   const format = useFormat();

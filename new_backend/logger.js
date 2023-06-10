@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+
+dotenv.config({ path: ".env" });
 const env = process.env;
 
 export function getLogger() {
@@ -7,37 +10,37 @@ export function getLogger() {
 }
 
 const loggerLevels = {
-  "silent": -1,
-  "error": 0,
-  "info": 1,
-  "debug": 2,
-}
+  silent: -1,
+  error: 0,
+  info: 1,
+  debug: 2,
+};
 
-class Logger {
+export class Logger {
   /**
    * @param {{
    *  level?: "silent" | "error" | "info" | "debug"
-   * }} options 
+   * }} options
    */
   constructor(options) {
     this.level = loggerLevels[options.level ?? "info"];
   }
 
   debug(...args) {
-    if (this.level >= loggerLevels.debug) {
-      console.log(`${new Date().toLocaleTimeString()} DEBUG `, ...args);
-    }
+    this._log("debug", ...args);
   }
 
   info(...args) {
-    if (this.level >= loggerLevels.info) {
-      console.log(`${new Date().toLocaleTimeString()} INFO  `, ...args);
-    }
+    this._log("info", ...args);
   }
 
   error(...args) {
-    if (this.level >= loggerLevels.error) {
-      console.log(`${new Date().toLocaleTimeString()} ERROR `, ...args);
+    this._log("error", ...args);
+  }
+
+  _log(level, ...args) {
+    if (this.level >= loggerLevels[level]) {
+      console.log(`${new Date().toLocaleTimeString()} ${level.toUpperCase().padEnd(5)} `, ...args);
     }
   }
 }

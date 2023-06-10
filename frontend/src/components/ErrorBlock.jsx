@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+
 import error from "../img/Error.gif";
 
 export const ErrorBlock = () => {
@@ -9,9 +10,9 @@ export const ErrorBlock = () => {
       <img src={error} alt="" />
       <h1 className="error-title">Ошибка с сервером</h1>
       <p className="error-description">
-        {!!errorText ? errorText : "Проверьте работоспособность сервера и OBS."}
+        {!!errorText ? errorText : "Проверьте работоспособность сервера и микшера."}
         <br />
-        Попробуйте переподключиться к obs-websocket, заполнив форму ниже, или
+        Попробуйте переподключиться к микшеру, заполнив форму ниже, или
         перезагрузить страницу.
       </p>
     </div>
